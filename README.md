@@ -1,35 +1,33 @@
 # MVW
 Because the world needs another wiki engine.
 
+Documentation and example [here](http:/mvw.simplectic.com).  Source [here](https://github.com/simplectic/mvw-doc)
+
 MVW is a minimal personal wiki engine bringing together several projects:
-1. [Jekyll][1] generation 
-2. [BlueTrip][2] styles
-3. [Pygments][3] syntax highlighting
-4. [MathJax][4] for *optional* LaTeX support. 
+
+  * [Jekyll][1] generation 
+  * [BlueTrip][2] styles
+  * [Pygments][3] syntax highlighting
+  * [MathJax][4] for *optional* LaTeX support. 
 
 
 ## Step 1: Install dependencies
 MVW relies on Jekyll for site generation and Pygments for syntax
 highlighting. If `gem` and `pip` are installed, try this:
 
-{% highlight bash %}
     $ gem install jekyll
     $ pip install pygments
-{% endhighlight %}
 
 For more detailed instructions or alternative installation, refer to 
 the [installation][5] instructions for Jekyll.
 
 ## Step 2: Get MVW
-{% highlight bash %}
     $ git clone https://github.com/simplectic/mvw.git
-{% endhighlight %}
 
 If you want to use github to store your wiki, fork and clone your
 own copy.
 
 ## Step 3: Generate some content
-{% highlight bash %}
     $ cd mvw/wiki
     $ cat > hello.md <<EOT 
     > ---
@@ -38,7 +36,6 @@ own copy.
     > ---
     > # Hello World!
     > EOT
-{% endhighlight %}
 
 Use `layout: default` in most cases. If you want LaTeX support,
 use `layout: math` to load MathJax from the CDN and include LaTeX
@@ -52,10 +49,8 @@ Files can be organized in a directory tree rooted at `mvw/wiki`.
 Index pages and breadcrumbs will be generated automatically.
 
 ## Step 4: Start Jekyll
-{% highlight bash %}
     $ cd mvw/wiki
     $ jekyll --server
-{% endhighlight %}
 
 MVW is configured with `auto: true` so most changes should reload
 automatically.
