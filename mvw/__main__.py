@@ -1,10 +1,9 @@
 from generator import Generator
 from optparse import OptionParser
 
-if __name__ == '__main__':
-
+def run():
     usage = """%prog [options] [SOURCEDIR]
-            If SOURCEDIR not given, wiki is assumed"""
+            If SOURCEDIR not given, doc is assumed"""
     desc = """Minimal Viable Wiki
             http://mvw.simplectic.com"""
     version = "0.0.1"
@@ -15,8 +14,11 @@ if __name__ == '__main__':
     (options, args) = opts.parse_args()
 
     if len(args) == 0:
-        source = 'wiki'
+        source = 'doc'
     else:
         source = args[0]
 
     Generator().run(source, options.destination)
+
+if __name__ == '__main__':
+    run()

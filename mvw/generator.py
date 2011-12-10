@@ -1,7 +1,7 @@
 import os
 
 class Generator:
-    def run(self, sourcedir='wiki', outputdir='site'):
+    def run(self, sourcedir, outputdir):
         sourcedir = os.path.normpath(sourcedir)
         outputdir = os.path.normpath(outputdir)
         prefix = len(sourcedir)+len(os.path.sep)
