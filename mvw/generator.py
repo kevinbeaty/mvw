@@ -1,22 +1,35 @@
 import os
 
 class Generator:
+
     def run(self, sourcedir, outputdir):
         sourcedir = os.path.normpath(sourcedir)
         outputdir = os.path.normpath(outputdir)
         prefix = len(sourcedir)+len(os.path.sep)
         for root, dirs, files in os.walk(sourcedir):
-            relpath = os.path.join(outputdir, root[prefix:])
+            destpath = os.path.join(outputdir, root[prefix:])
 
             print()
             print('-'*25)
             print('Pages')
 
             for f in files:
-                print(os.path.join(relpath, f))
+                src = os.path.join(root, f)
+                base, ext = os.path.splitext(f)
+                if ext in ['.md', '.markdown']:
+                    dest = os.path.join(destpath, "%s%s" % (base, '.html'))
+                    self.parse(src, dest)
+                else:
+                    dest = os.path.join(destpath, f)
+                    self.copy(src, dest)
 
             print('-'*25)
             print('Dirs')
             for d in dirs:
-                print(os.path.join(relpath, d))
+                print(os.path.join(destpath, d))
 
+    def parse(self, source, destination): 
+        print("Parse Source: %s Destination: %s" % (source, destination))
+
+    def copy(self, source, destination):
+        print("Copy Source: %s Destination: %s" % (source, destination))
