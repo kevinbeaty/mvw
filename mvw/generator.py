@@ -1,12 +1,15 @@
 import os
 import shutil
+from markdown import Markdown
 
 class Generator:
 
     def run(self, sourcedir, outputdir):
         sourcedir = os.path.normpath(sourcedir)
         outputdir = os.path.normpath(outputdir)
+
         prefix = len(sourcedir)+len(os.path.sep)
+
         for root, dirs, files in os.walk(sourcedir):
             destpath = os.path.join(outputdir, root[prefix:])
             if not os.path.exists(destpath):
@@ -32,5 +35,6 @@ class Generator:
                 print(os.path.join(destpath, d))
 
     def parse(self, source, destination): 
-        print("Parse Source: %s Destination: %s" % (source, destination))
+        md = Markdown()
+        md.convertFile(source, destination)
 
