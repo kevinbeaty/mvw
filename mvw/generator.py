@@ -9,11 +9,18 @@ class Generator:
         self.themedir = os.path.normpath(themedir)
 
     def run(self):
+        self.clean()
         self.include_theme()
         self.include_source()
 
+    def clean(self):
+        if os.path.exists(self.outputdir):
+            shutil.rmtree(self.outputdir)
+
     def include_theme(self):
-        print("Include theme %s in %s" % (self.themedir, self.outputdir))
+        public = os.path.join(self.themedir, 'public')
+        if os.path.exists(public):
+            shutil.copytree(public, self.outputdir)
 
     def include_source(self):
 
@@ -23,10 +30,6 @@ class Generator:
             destpath = os.path.join(self.outputdir, root[prefix:])
             if not os.path.exists(destpath):
                 os.makedirs(destpath)
-
-            print()
-            print('-'*25)
-            print('Pages')
 
             for f in files:
                 src = os.path.join(root, f)
@@ -38,8 +41,6 @@ class Generator:
                     dest = os.path.join(destpath, f)
                     shutil.copy(src, dest)
 
-            print('-'*25)
-            print('Dirs')
             for d in dirs:
                 print(os.path.join(destpath, d))
 
