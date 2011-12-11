@@ -1,6 +1,8 @@
 import os
 import shutil
 from markdown import Markdown
+from mako.lookup import TemplateLookup
+from mako.template import Template
 
 class Generator:
     def __init__(self, sourcedir, outputdir, themedir):
@@ -21,6 +23,10 @@ class Generator:
         public = os.path.join(self.themedir, 'public')
         if os.path.exists(public):
             shutil.copytree(public, self.outputdir)
+
+        template = os.path.join(self.themedir, 'template')
+        if os.path.exists(template):
+            self.templatelookup = TemplateLookup(directories=[template])
 
     def include_source(self):
 
@@ -46,5 +52,12 @@ class Generator:
 
     def parse(self, source, destination): 
         md = Markdown()
-        md.convertFile(source, destination)
 
+        with open(source) as src:
+            parsed = md.convert(src.read())
+
+        template = self.templatelookup.get_template('default.html')
+        rendered = template.render(content=parsed, title='MVW')
+
+        with open(destination, mode='w') as dst:
+            dst.write(rendered)
