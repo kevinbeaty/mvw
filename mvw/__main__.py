@@ -27,7 +27,7 @@ def run():
         projdir = os.path.normpath(os.path.join(moddir, '..'))
         theme = os.path.join(projdir, 'theme')
 
-    Generator().run(source, options.destination, theme)
+    Generator(source, options.destination, theme).run()
 
 if __name__ == '__main__':
     run()

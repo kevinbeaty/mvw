@@ -3,18 +3,24 @@ import shutil
 from markdown import Markdown
 
 class Generator:
+    def __init__(self, sourcedir, outputdir, themedir):
+        self.sourcedir = os.path.normpath(sourcedir)
+        self.outputdir = os.path.normpath(outputdir)
+        self.themedir = os.path.normpath(themedir)
 
-    def run(self, sourcedir, outputdir, themedir):
-        sourcedir = os.path.normpath(sourcedir)
-        outputdir = os.path.normpath(outputdir)
-        themedir = os.path.normpath(themedir)
+    def run(self):
+        self.include_theme()
+        self.include_source()
 
-        print(themedir)
+    def include_theme(self):
+        print("Include theme %s in %s" % (self.themedir, self.outputdir))
 
-        prefix = len(sourcedir)+len(os.path.sep)
+    def include_source(self):
 
-        for root, dirs, files in os.walk(sourcedir):
-            destpath = os.path.join(outputdir, root[prefix:])
+        prefix = len(self.sourcedir)+len(os.path.sep)
+
+        for root, dirs, files in os.walk(self.sourcedir):
+            destpath = os.path.join(self.outputdir, root[prefix:])
             if not os.path.exists(destpath):
                 os.makedirs(destpath)
 
