@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%include file="head.html" />
+    </head>
+    <body>
+        <%include file="header.html" /> 
+
+        % if pages:
+        <h1>Pages</h1>
+        <ul>
+            % for p in pages:
+            <li>
+                <a href="${p.url}">${p.title}</a>
+            </li>
+            % endfor 
+        </ul>
+        % endif
+
+        % if children:
+        <h1>Children</h1>
+        <ul>
+            % for c in children:
+            <li>
+                <a href="${c.url}">${c.title}</a>
+            </li>
+            % endfor
+        </ul>
+        % endif
+
+        <%include file="footer.html" /> 
+    </body>
+</html>

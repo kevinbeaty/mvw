@@ -36,18 +36,37 @@ class Generator:
             if not os.path.exists(destpath):
                 os.makedirs(destpath)
 
+            pages = []
             for f in files:
                 src = os.path.join(root, f)
                 base, ext = os.path.splitext(f)
                 if ext in ['.md', '.markdown']:
                     dest = os.path.join(destpath, "%s%s" % (base, '.html'))
                     self.parse(src, dest)
+                    pages.append(dest)
                 else:
                     dest = os.path.join(destpath, f)
                     shutil.copy(src, dest)
+                    if ext in ['.html']:
+                        pages.append(dest)
 
-            for d in dirs:
-                print(os.path.join(destpath, d))
+            index = os.path.join(destpath, 'index.html')
+            dirs = [os.path.join(destpath, d, 'index.html') for d in dirs]
+            self.include_index(index, pages, dirs)
+            
+
+    def include_index(self, destination, pages, children):
+        pages = [TemplatePage(self.outputdir, p) for p in pages]
+        children = [TemplatePage(self.outputdir, c) for c in children]
+        
+        template = self.templatelookup.get_template('index.html')
+        rendered = template.render(pages=pages, 
+                                   children=children,
+                                   title='MVW', 
+                                   breadcrumb=self.breadcrumb(destination))
+        with open(destination, mode='w') as dst:
+            dst.write(rendered)
+
 
     def parse(self, source, destination): 
         md = Markdown()
@@ -75,4 +94,15 @@ class Generator:
                 crumb += ' &gt; <a href="%s">%s</a>' % (href, p)
 
         return crumb
+    
+class TemplatePage:
+    def __init__(self, siteroot, pagepath):
+        prefix = len(siteroot)
+        self.url = pagepath[prefix:].replace(os.path.sep, "/") 
+
+        (path, base) = os.path.split(pagepath)
+        (name, ext) = os.path.splitext(base) 
+        if name == 'index':
+            name = os.path.basename(path)
+        self.title = name
 
