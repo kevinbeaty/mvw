@@ -1,5 +1,6 @@
 from generator import Generator
 from optparse import OptionParser
+import os
 
 def run():
     usage = """%prog [options] [SOURCEDIR]
@@ -11,6 +12,8 @@ def run():
     opts = OptionParser(usage=usage, description=desc, version=version)
     opts.add_option('-d', '--destination', dest='destination', default='_site',
                     help='Source directory of the wiki files')
+    opts.add_option('-t', '--theme', dest='theme', default=None,
+                    help='Directory containing custom theme, uses default if ommitted')
     (options, args) = opts.parse_args()
 
     if len(args) == 0:
@@ -18,7 +21,13 @@ def run():
     else:
         source = args[0]
 
-    Generator().run(source, options.destination)
+    theme = options.theme
+    if theme is None:
+        moddir = os.path.dirname(__file__)
+        projdir = os.path.normpath(os.path.join(moddir, '..'))
+        theme = os.path.join(projdir, 'theme')
+
+    Generator().run(source, options.destination, theme)
 
 if __name__ == '__main__':
     run()

@@ -4,9 +4,12 @@ from markdown import Markdown
 
 class Generator:
 
-    def run(self, sourcedir, outputdir):
+    def run(self, sourcedir, outputdir, themedir):
         sourcedir = os.path.normpath(sourcedir)
         outputdir = os.path.normpath(outputdir)
+        themedir = os.path.normpath(themedir)
+
+        print(themedir)
 
         prefix = len(sourcedir)+len(os.path.sep)
 
