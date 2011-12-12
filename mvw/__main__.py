@@ -1,4 +1,4 @@
-from generator import Generator
+from mvw.generator import Generator
 from optparse import OptionParser
 import os
 
