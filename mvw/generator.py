@@ -69,7 +69,7 @@ class Generator:
 
 
     def parse(self, source, destination): 
-        md = Markdown()
+        md = Markdown(extensions=['codehilite(css_class=syntax,guess_lang=False)'])
 
         with open(source) as src:
             parsed = md.convert(src.read())
