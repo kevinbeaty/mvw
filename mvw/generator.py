@@ -32,6 +32,10 @@ class Generator:
         prefix = len(self.sourcedir)+len(os.path.sep)
 
         for root, dirs, files in os.walk(self.sourcedir):
+            # Prune hidden directories and files
+            dirs[:] = [d for d in dirs if not d.startswith('.')]
+            files[:] = [f for f in files if not f.startswith('.')]
+
             destpath = os.path.join(self.outputdir, root[prefix:])
             if not os.path.exists(destpath):
                 os.makedirs(destpath)
@@ -40,6 +44,7 @@ class Generator:
             for f in files:
                 src = os.path.join(root, f)
                 base, ext = os.path.splitext(f)
+
                 if ext in ['.md', '.markdown']:
                     dest = os.path.join(destpath, "%s%s" % (base, '.html'))
                     self.parse(src, dest)
