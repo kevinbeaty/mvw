@@ -96,7 +96,7 @@ class Generator:
         for p in destdir.split(os.path.sep):
             if len(p) > 0:
                 href += '%s/' % p
-                crumb += ' &gt; <a href="%s">%s</a>' % (href, p)
+                crumb += ' &gt; <a href="%s">%s</a>' % (href, p.replace("_", " ").title())
 
         return crumb
     
