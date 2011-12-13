@@ -109,5 +109,5 @@ class TemplatePage:
         (name, ext) = os.path.splitext(base) 
         if name == 'index':
             name = os.path.basename(path)
-        self.title = name
+        self.title = name.replace("_", " ").title()
 
