@@ -25,7 +25,7 @@ setup(
     ],
     entry_points={
       'console_scripts': [
-          'mvw = mvw.__main__:run'
+          'mvw = mvw.main:run'
       ]
     },
     classifiers=[

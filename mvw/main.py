@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from mvw.generator import Generator
 from optparse import OptionParser
 import os
