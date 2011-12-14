@@ -1,5 +1,6 @@
 import os
 import shutil
+import codecs
 from markdown import Markdown
 from mako.lookup import TemplateLookup
 
@@ -69,14 +70,14 @@ class Generator:
                                    children=children,
                                    title='MVW', 
                                    breadcrumb=self.breadcrumb(destination))
-        with open(destination, mode='w') as dst:
+        with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
 
 
     def parse(self, source, destination): 
         md = Markdown(extensions=['codehilite(css_class=syntax,guess_lang=False)'])
 
-        with open(source) as src:
+        with codecs.open(source, encoding='utf-8') as src:
             parsed = md.convert(src.read())
 
         template = self.templatelookup.get_template('default.html')
@@ -84,7 +85,7 @@ class Generator:
                                    title='MVW', 
                                    breadcrumb=self.breadcrumb(destination))
 
-        with open(destination, mode='w') as dst:
+        with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
 
     def breadcrumb(self, destination):
