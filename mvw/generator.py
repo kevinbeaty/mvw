@@ -15,6 +15,10 @@ class Generator:
         self.outputdir = os.path.normpath(outputdir)
         self.themedir = os.path.normpath(themedir)
 
+        template = os.path.join(self.themedir, 'template')
+        if os.path.exists(template):
+            self.templatelookup = TemplateLookup(directories=[template])
+
     def run(self):
         """
         Generates the entire site.
@@ -43,9 +47,6 @@ class Generator:
         if os.path.exists(public):
             shutil.copytree(public, self.outputdir)
 
-        template = os.path.join(self.themedir, 'template')
-        if os.path.exists(template):
-            self.templatelookup = TemplateLookup(directories=[template])
 
     def include_source(self):
         """
