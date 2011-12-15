@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from mvw.generator import Generator
+from mvw.server import Server
 from optparse import OptionParser
 import os
 import sys
@@ -14,6 +15,7 @@ def run():
     usage = """
             %prog init : Initializes MVW at the current directory
             %prog generate : Generates the site
+            %prog serve: Serve the generated site
             """
     desc = """Minimal Viable Wiki
             http://mvw.simplectic.com"""
@@ -33,6 +35,8 @@ def run():
         init(start)
     elif command == "generate":
         generate(start)
+    elif command == "serve":
+        serve(start)
     else:
         opts.print_usage()
         sys.exit(-2)
@@ -58,7 +62,14 @@ def generate(start):
     Searches up the directory tree for a .mvw directory
     and generates the site into .mvw/site
     """
+    create_generator(start).run()
 
+def serve(start):
+    generator = create_generator(start)
+    server = Server(generator, '127.0.0.1', 8000)
+    server.serve_forever()
+
+def create_generator(start):
     root = get_root(start)
     if root is None:
         print("Run mvw init on the root directory of wiki")
@@ -72,7 +83,7 @@ def generate(start):
     projdir = os.path.normpath(os.path.join(moddir, '..'))
     theme = os.path.join(projdir, 'theme')
 
-    Generator(source, destination, theme).run()
+    return Generator(source, destination, theme)
 
 
 def get_root(path):
