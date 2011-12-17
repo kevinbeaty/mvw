@@ -19,9 +19,9 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'mako',
-        'markdown',
-        'pygments',
+        'Mako',
+        'Markdown',
+        'Pygments',
     ],
     entry_points={
       'console_scripts': [
