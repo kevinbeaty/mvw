@@ -1,3 +1,4 @@
 Mako
 Markdown
 Pygments
+PyYAML
