@@ -79,9 +79,8 @@ class Generator:
         Includes the index page for the specified destination
         pages and children
         """
-        outputdir = self.config.outputdir
-        pages = [TemplatePage(self.title(p), outputdir, p) for p in pages]
-        children = [TemplatePage(self.title(c), outputdir, c) for c in children]
+        pages = [TemplatePage(self, p) for p in pages]
+        children = [TemplatePage(self, c) for c in children]
 
         template = self.config.get_index_template()
         rendered = template.render(pages=pages,
@@ -152,8 +151,8 @@ class TemplatePage:
     Encapsulates data for a page to include in the template
     """
 
-    def __init__(self, title, siteroot, pagepath):
-        self.title = title
-        prefix = len(siteroot)
-        self.url = pagepath[prefix:].replace(os.path.sep, "/")
+    def __init__(self, generator, destination):
+        self.title = generator.title(destination)
+        prefix = len(generator.config.outputdir)
+        self.url = destination[prefix:].replace(os.path.sep, "/")
 
