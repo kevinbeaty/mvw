@@ -80,13 +80,13 @@ class Generator:
         pages and children
         """
         outputdir = self.config.outputdir
-        pages = [TemplatePage(outputdir, p) for p in pages]
-        children = [TemplatePage(outputdir, c) for c in children]
+        pages = [TemplatePage(self.title(p), outputdir, p) for p in pages]
+        children = [TemplatePage(self.title(c), outputdir, c) for c in children]
 
         template = self.config.get_index_template()
         rendered = template.render(pages=pages,
                                    children=children,
-                                   title='MVW',
+                                   title=self.title(destination),
                                    breadcrumb=self.breadcrumb(destination))
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
@@ -104,7 +104,7 @@ class Generator:
 
         template = self.config.get_content_template(source)
         rendered = template.render(content=parsed,
-                                   title='MVW',
+                                   title=self.title(destination),
                                    breadcrumb=self.breadcrumb(destination))
 
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
@@ -125,10 +125,27 @@ class Generator:
         for p in destdir.split(os.path.sep):
             if len(p) > 0:
                 href += '%s/' % p
-                text = p.replace("_", " ").title()
-                crumb += ' &gt; <a href="%s">%s</a>' % (href, text)
+                crumb += ' &gt; <a href="%s">%s</a>' % (href, self.title(p))
 
         return crumb
+
+    def title(self, path):
+        """
+        Generates a title for the given path.
+        """
+
+        base = os.path.basename(path)
+
+        if(base == 'index.html'):
+            dirname = os.path.dirname(path)
+            if dirname in [self.config.outputdir, self.config.sourcedir]:
+                return self.config.get_breadcrumb_home()
+            else:
+                name = os.path.basename(os.path.dirname(path))
+        else:
+            name, ext = os.path.splitext(base)
+
+        return name.replace("_", " ").title()
 
 
 class TemplatePage:
@@ -136,12 +153,8 @@ class TemplatePage:
     Encapsulates data for a page to include in the template
     """
 
-    def __init__(self, siteroot, pagepath):
+    def __init__(self, title, siteroot, pagepath):
+        self.title = title
         prefix = len(siteroot)
         self.url = pagepath[prefix:].replace(os.path.sep, "/")
 
-        (path, base) = os.path.split(pagepath)
-        (name, ext) = os.path.splitext(base)
-        if name == 'index':
-            name = os.path.basename(path)
-        self.title = name.replace("_", " ").title()
