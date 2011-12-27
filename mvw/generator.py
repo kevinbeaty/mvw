@@ -69,8 +69,6 @@ class Generator:
                 else:
                     dest = os.path.join(destpath, f)
                     shutil.copy(src, dest)
-                    if ext in ['.html']:
-                        pages.append(dest)
 
             index = os.path.join(destpath, 'index.html')
             dirs = [os.path.join(destpath, d, 'index.html') for d in dirs]
