@@ -121,7 +121,8 @@ class Generator:
         prefix = len(outputdir) + len(os.path.sep)
         destdir = os.path.dirname(destination[prefix:])
 
-        crumb = '<a href="/">Home</a>'
+        home = self.config.get_breadcrumb_home()
+        crumb = '<a href="/">%s</a>' % home
         href = "/"
         for p in destdir.split(os.path.sep):
             if len(p) > 0:

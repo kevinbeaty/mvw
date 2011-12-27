@@ -10,9 +10,10 @@ class Config:
         self.sourcedir = os.path.normpath(sourcedir)
         self.themedir = os.path.normpath(themedir)
 
-        default = os.path.join(sourcedir, '.mvw', 'config')
+        default = os.path.join(sourcedir, '.mvw', 'config.yml')
         if os.path.isfile(default):
-            self.default = yaml.load(default)
+            with open(default) as data:
+                self.default = yaml.load(data)
         else:
             self.default = {}
 
@@ -20,12 +21,15 @@ class Config:
         if os.path.exists(template):
             self.templatelookup = TemplateLookup(directories=[template])
 
+    def get_breadcrumb_home(self): 
+        return self.default.get('breadcrumb_home', 'Home')
+
     def get_content_template(self, source):
-        template = self.default.get('content', 'default.html')
+        template = self.default.get('content_template', 'default.html')
         return self.templatelookup.get_template(template)
 
     def get_index_template(self):
-        template = self.default.get('index', 'index.html')
+        template = self.default.get('index_template', 'index.html')
         return self.templatelookup.get_template(template)
 
     def get_theme_public(self):
