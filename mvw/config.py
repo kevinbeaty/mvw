@@ -34,3 +34,8 @@ class Config:
 
     def get_theme_public(self):
         return os.path.join(self.themedir, 'public')
+
+    def get_markdown_extensions(self):
+        defaults = ['codehilite(css_class=syntax,guess_lang=False)']
+        return self.default.get('markdown_extensions', defaults)
+

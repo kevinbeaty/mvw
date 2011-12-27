@@ -96,8 +96,7 @@ class Generator:
         Parses the source file and saves to the destination
         """
 
-        code = 'codehilite(css_class=syntax,guess_lang=False)'
-        md = Markdown(extensions=[code])
+        md = Markdown(extensions=self.config.get_markdown_extensions())
 
         with codecs.open(source, encoding='utf-8') as src:
             parsed = md.convert(src.read())
