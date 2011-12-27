@@ -6,6 +6,7 @@ from mvw.server import Server
 from optparse import OptionParser
 import os
 import sys
+import shutil
 
 
 def run():
@@ -51,7 +52,14 @@ def init(start):
 
     root = get_root(start)
     if root is None:
-        os.mkdir(os.path.join(start, '.mvw'))
+        root = os.path.join(start, '.mvw')
+
+        # Load defaults 
+        moddir = os.path.dirname(__file__)
+        projdir = os.path.normpath(os.path.join(moddir, '..'))
+        defaults = os.path.join(projdir, 'defaults')
+
+        shutil.copytree(defaults, root)
     else:
         print("Cannot init within existing wiki: %s" % root)
         sys.exit(-3)
@@ -78,16 +86,7 @@ def create_generator(start):
         print("Run mvw init on the root directory of wiki")
         sys.exit(-4)
 
-    destination = os.path.join(root, 'site')
-    source = os.path.split(root)[0]
-
-    # Load default theme
-    moddir = os.path.dirname(__file__)
-    projdir = os.path.normpath(os.path.join(moddir, '..'))
-    theme = os.path.join(projdir, 'theme')
-
-    config = Config(source, destination, theme)
-    return Generator(config)
+    return Generator(Config(root))
 
 
 def get_root(path):

@@ -5,19 +5,21 @@ import yaml
 
 
 class Config:
-    def __init__(self, sourcedir, outputdir, themedir):
-        self.outputdir = os.path.normpath(outputdir)
-        self.sourcedir = os.path.normpath(sourcedir)
-        self.themedir = os.path.normpath(themedir)
+    def __init__(self, mvw_root):
+        mvw_root = os.path.normpath(mvw_root)
 
-        default = os.path.join(sourcedir, '.mvw', 'config.yml')
+        self.sourcedir = os.path.split(mvw_root)[0]
+        self.outputdir = os.path.join(mvw_root, 'site')
+        self.themedir = os.path.join(mvw_root, 'theme')
+
+        default = os.path.join(mvw_root, 'config.yml')
         if os.path.isfile(default):
             with open(default) as data:
                 self.default = yaml.load(data)
         else:
             self.default = {}
 
-        template = os.path.join(themedir, 'template')
+        template = os.path.join(self.themedir, 'template')
         if os.path.exists(template):
             self.templatelookup = TemplateLookup(directories=[template])
 

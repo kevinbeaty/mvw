@@ -1,0 +1,5 @@
+breadcrumb_home: Home
+index_template: index.html
+content_template: default.html
+markdown_extensions:
+  - codehilite(css_class=syntax,guess_lang=False)
