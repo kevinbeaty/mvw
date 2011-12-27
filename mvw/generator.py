@@ -2,7 +2,6 @@ import os
 import shutil
 import codecs
 from markdown import Markdown
-from mako.lookup import TemplateLookup
 
 
 class Generator:
@@ -10,14 +9,8 @@ class Generator:
     Generates the html for the wiki
     """
 
-    def __init__(self, sourcedir, outputdir, themedir):
-        self.sourcedir = os.path.normpath(sourcedir)
-        self.outputdir = os.path.normpath(outputdir)
-        self.themedir = os.path.normpath(themedir)
-
-        template = os.path.join(self.themedir, 'template')
-        if os.path.exists(template):
-            self.templatelookup = TemplateLookup(directories=[template])
+    def __init__(self, config):
+        self.config = config
 
     def run(self):
         """
@@ -34,33 +27,33 @@ class Generator:
         """
         Cleans (rm -rf) the outputdir
         """
-
-        if os.path.exists(self.outputdir):
-            shutil.rmtree(self.outputdir)
+        outputdir = self.config.outputdir
+        if os.path.exists(outputdir):
+            shutil.rmtree(outputdir)
 
     def include_theme(self):
         """
         Includes the theme in the outputdir
         """
-
-        public = os.path.join(self.themedir, 'public')
+        outputdir = self.config.outputdir
+        public = self.config.get_theme_public()
         if os.path.exists(public):
-            shutil.copytree(public, self.outputdir)
-
+            shutil.copytree(public, outputdir)
 
     def include_source(self):
         """
         Generates and includes the source into the outputdir
         """
+        sourcedir = self.config.sourcedir
+        outputdir = self.config.outputdir
+        prefix = len(sourcedir) + len(os.path.sep)
 
-        prefix = len(self.sourcedir) + len(os.path.sep)
-
-        for root, dirs, files in os.walk(self.sourcedir):
+        for root, dirs, files in os.walk(sourcedir):
             # Prune hidden directories and files
             dirs[:] = [d for d in dirs if not d.startswith('.')]
             files[:] = [f for f in files if not f.startswith('.')]
 
-            destpath = os.path.join(self.outputdir, root[prefix:])
+            destpath = os.path.join(outputdir, root[prefix:])
             if not os.path.exists(destpath):
                 os.makedirs(destpath)
 
@@ -88,11 +81,11 @@ class Generator:
         Includes the index page for the specified destination
         pages and children
         """
+        outputdir = self.config.outputdir
+        pages = [TemplatePage(outputdir, p) for p in pages]
+        children = [TemplatePage(outputdir, c) for c in children]
 
-        pages = [TemplatePage(self.outputdir, p) for p in pages]
-        children = [TemplatePage(self.outputdir, c) for c in children]
-
-        template = self.templatelookup.get_template('index.html')
+        template = self.config.get_index_template()
         rendered = template.render(pages=pages,
                                    children=children,
                                    title='MVW',
@@ -111,7 +104,7 @@ class Generator:
         with codecs.open(source, encoding='utf-8') as src:
             parsed = md.convert(src.read())
 
-        template = self.templatelookup.get_template('default.html')
+        template = self.config.get_content_template(source)
         rendered = template.render(content=parsed,
                                    title='MVW',
                                    breadcrumb=self.breadcrumb(destination))
@@ -124,7 +117,8 @@ class Generator:
         Generates a breadcrumb for the specified destination file
         """
 
-        prefix = len(self.outputdir) + len(os.path.sep)
+        outputdir = self.config.outputdir
+        prefix = len(outputdir) + len(os.path.sep)
         destdir = os.path.dirname(destination[prefix:])
 
         crumb = '<a href="/">Home</a>'

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from mvw.config import Config
 from mvw.generator import Generator
 from mvw.server import Server
 from optparse import OptionParser
@@ -64,10 +65,12 @@ def generate(start):
     """
     create_generator(start).run()
 
+
 def serve(start):
     generator = create_generator(start)
     server = Server(generator, '127.0.0.1', 8000)
     server.serve_forever()
+
 
 def create_generator(start):
     root = get_root(start)
@@ -83,7 +86,8 @@ def create_generator(start):
     projdir = os.path.normpath(os.path.join(moddir, '..'))
     theme = os.path.join(projdir, 'theme')
 
-    return Generator(source, destination, theme)
+    config = Config(source, destination, theme)
+    return Generator(config)
 
 
 def get_root(path):
