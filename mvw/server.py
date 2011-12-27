@@ -40,7 +40,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
             if word not in (os.curdir, os.pardir):
                 path = os.path.join(path, word)
 
-        dest = os.path.join(generator.outputdir, path)
+        dest = os.path.join(generator.config.outputdir, path)
 
         # If requesting an html page, and a source file
         # exists, regenerate. This allows auto regeneration
@@ -48,7 +48,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         base, ext = os.path.splitext(path)
         if ext == '.html':
             for source_ext in ['.md', '.markdown']:
-                source = os.path.join(generator.sourcedir,
+                source = os.path.join(generator.config.sourcedir,
                         "%s%s" % (base, source_ext))
                 if os.path.exists(source):
                     print("Regenerating %s %s" % (source, dest))
