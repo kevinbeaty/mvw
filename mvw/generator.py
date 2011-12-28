@@ -165,4 +165,3 @@ class TemplatePage:
         self.title = generator.title(destination)
         prefix = len(generator.config.outputdir)
         self.url = destination[prefix:].replace(os.path.sep, "/")
-

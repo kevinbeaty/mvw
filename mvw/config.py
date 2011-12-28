@@ -29,7 +29,7 @@ class Config:
                 md.convert(src.read())
                 self.default = md.Meta
         else:
-            # No config.yml is OK, we'll just use defaults
+            # No config is OK, we'll just use defaults
             self.default = {}
 
         template = os.path.join(self.themedir, 'template')

@@ -54,7 +54,7 @@ def init(start):
     if root is None:
         root = os.path.join(start, '.mvw')
 
-        # Load defaults 
+        # Load defaults
         moddir = os.path.dirname(__file__)
         projdir = os.path.normpath(os.path.join(moddir, '..'))
         defaults = os.path.join(projdir, 'defaults')
