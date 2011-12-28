@@ -87,7 +87,7 @@ class Generator:
                                    children=children,
                                    title=self.title(destination),
                                    breadcrumb=self.breadcrumb(destination),
-                                   Meta={})
+                                   Meta={}, meta={})
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
 
@@ -107,11 +107,11 @@ class Generator:
                        breadcrumb=self.breadcrumb(destination))
 
         # Include meta data from extension (if enabled)
+        meta = {}
         if hasattr(md, 'Meta'):
-            context['Meta'] = md.Meta or {}
-        else:
-            context['Meta'] = {}
-
+            meta = md.Meta or {}
+        context['Meta'] = meta
+        context['meta'] = {k: ' '.join(v) for k, v in meta.items()}
 
         rendered = template.render(**context)
 
