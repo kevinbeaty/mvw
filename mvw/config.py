@@ -85,4 +85,5 @@ class Config:
         List of Python Markdown extesions
         """
 
-        return self.default.get('markdown-extensions', [])
+        exts = self.default.get('markdown-extensions', [])
+        return filter(None, exts)  # Removes empty lines
