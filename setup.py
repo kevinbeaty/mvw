@@ -22,7 +22,6 @@ setup(
         'Mako',
         'Markdown',
         'Pygments',
-        'PyYAML',
     ],
     entry_points={
       'console_scripts': [
