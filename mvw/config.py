@@ -1,7 +1,8 @@
 from mako.lookup import TemplateLookup
+from markdown import Markdown
 
 import os
-import yaml
+import codecs
 
 
 class Config:
@@ -21,10 +22,12 @@ class Config:
         self.outputdir = os.path.join(mvw_root, 'site')
         self.themedir = os.path.join(mvw_root, 'theme')
 
-        default = os.path.join(mvw_root, 'config.yml')
+        default = os.path.join(mvw_root, 'config.md')
         if os.path.isfile(default):
-            with open(default) as data:
-                self.default = yaml.load(data)
+            md = Markdown(extensions=['meta'])
+            with codecs.open(default, encoding='utf-8') as src:
+                md.convert(src.read())
+                self.default = md.Meta
         else:
             # No config.yml is OK, we'll just use defaults
             self.default = {}
@@ -52,14 +55,14 @@ class Config:
         The text for the breadcrumb at the site root
         """
 
-        return self.default.get('breadcrumb_home', 'Home')
+        return self.default.get('breadcrumb-home', ['Home'])[0]
 
     def get_content_template(self, source):
         """
         The template to use for parsed content
         """
 
-        template = self.default.get('content_template', 'default.html')
+        template = self.default.get('content-template', ['default.html'])[0]
         return self.templatelookup.get_template(template)
 
     def get_index_template(self):
@@ -67,7 +70,7 @@ class Config:
         The template to use for the index
         """
 
-        template = self.default.get('index_template', 'index.html')
+        template = self.default.get('index-template', ['index.html'])[0]
         return self.templatelookup.get_template(template)
 
     def get_theme_public(self):
@@ -82,4 +85,4 @@ class Config:
         List of Python Markdown extesions
         """
 
-        return self.default.get('markdown_extensions', [])
+        return self.default.get('markdown-extensions', [])
