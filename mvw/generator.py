@@ -86,7 +86,8 @@ class Generator:
         rendered = template.render(pages=pages,
                                    children=children,
                                    title=self.title(destination),
-                                   breadcrumb=self.breadcrumb(destination))
+                                   breadcrumb=self.breadcrumb(destination),
+                                   Meta={})
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
 
@@ -101,9 +102,18 @@ class Generator:
             parsed = md.convert(src.read())
 
         template = self.config.get_content_template(source)
-        rendered = template.render(content=parsed,
-                                   title=self.title(destination),
-                                   breadcrumb=self.breadcrumb(destination))
+        context = dict(content=parsed,
+                       title=self.title(destination),
+                       breadcrumb=self.breadcrumb(destination))
+
+        # Include meta data from extension (if enabled)
+        if hasattr(md, 'Meta'):
+            context['Meta'] = md.Meta or {}
+        else:
+            context['Meta'] = {}
+
+
+        rendered = template.render(**context)
 
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
