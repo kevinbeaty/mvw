@@ -1,4 +1,4 @@
-from mako.lookup import TemplateLookup
+from jinja2 import Environment, FileSystemLoader
 from markdown import Markdown
 
 import os
@@ -34,7 +34,7 @@ class Config:
 
         template = os.path.join(self.themedir, 'template')
         if os.path.exists(template):
-            self.templatelookup = TemplateLookup(directories=[template])
+            self.environment = Environment(loader=FileSystemLoader(template))
         else:
             raise Exception(
                 """
@@ -63,7 +63,7 @@ class Config:
         """
 
         template = self.default.get('content-template', ['default.html'])[0]
-        return self.templatelookup.get_template(template)
+        return self.environment.get_template(template)
 
     def get_index_template(self):
         """
@@ -71,7 +71,7 @@ class Config:
         """
 
         template = self.default.get('index-template', ['index.html'])[0]
-        return self.templatelookup.get_template(template)
+        return self.environment.get_template(template)
 
     def get_theme_public(self):
         """

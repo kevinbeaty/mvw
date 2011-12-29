@@ -19,7 +19,7 @@ setup(
     zip_safe=False,
     platforms='any',
     install_requires=[
-        'Mako',
+        'Jinja2',
         'Markdown',
         'Pygments',
     ],

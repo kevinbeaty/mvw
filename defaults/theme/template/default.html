@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <%include file="head.html" />
-    </head>
-    <body>
-        <%include file="header.html" /> 
-        ${content}
-        <%include file="footer.html" />
-    </body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+{{ content }}
+{% endblock %}
