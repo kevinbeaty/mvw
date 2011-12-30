@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block head %}
+{{ super() }}
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            jax: ["input/TeX", "output/HTML-CSS"],
+            preJax: '\\$',
+            postJax: '\\$'
+        });
+    </script>
+    <script type="text/javascript" 
+        src="http://cdn.mathjax.org/mathjax/latest/MathJax.js">
+    </script>
+{% endblock %}
+{% block content %}
+{{ content }}
+{% endblock %}
