@@ -2,6 +2,7 @@ import os
 import shutil
 import codecs
 from markdown import Markdown
+from markdown.extensions.meta import MetaPreprocessor
 
 
 class Generator:
@@ -96,23 +97,28 @@ class Generator:
         Parses the source file and saves to the destination
         """
 
-        md = Markdown(extensions=self.config.get_markdown_extensions())
-
-        with codecs.open(source, encoding='utf-8') as src:
-            parsed = md.convert(src.read())
-
-        context = dict(content=parsed,
-                       title=self.title(destination),
+        context = dict(title=self.title(destination),
                        breadcrumb=self.breadcrumb(destination))
 
-        # Include meta data from extension (if enabled)
-        meta = {}
-        if hasattr(md, 'Meta'):
-            meta = md.Meta or {}
-        context['Meta'] = meta
-        context['meta'] = {k: ' '.join(v) for k, v in meta.items()}
+        with codecs.open(source, encoding='utf-8') as src:
+            lines = src.readlines()
 
-        template = self.config.get_content_template(source, **context)
+        # Parse metadata first so we can get theme extensions
+        md = Markdown()
+        lines = MetaPreprocessor(md).run(lines)
+
+        meta = {k: ' '.join(v) for k, v in md.Meta.items()}
+        context['Meta'] = md.Meta
+        context['meta'] = meta
+
+        # Load theme from meta data if set
+        theme = meta.get('theme', 'default')
+        exts = self.config.get_markdown_extensions(theme=theme)
+        md = Markdown(extensions=exts)
+
+        context['content'] = md.convert('\n'.join(lines))
+
+        template = self.config.get_content_template(source, theme=theme)
         rendered = template.render(**context)
 
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:

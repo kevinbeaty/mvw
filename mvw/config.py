@@ -27,10 +27,10 @@ class Config:
         default = os.path.join(mvw_root, 'config.yaml')
         if os.path.isfile(default):
             with codecs.open(default, encoding='utf-8') as src:
-                self.default = yaml.load(src) 
+                self.config = yaml.load(src)
         else:
             # No config is OK, we'll just use defaults
-            self.default = {}
+            self.config = {}
 
         # Setup template environment
         template = os.path.join(self.themedir, 'template')
@@ -61,26 +61,14 @@ class Config:
         The text for the breadcrumb at the site root
         """
 
-        return self.default.get('breadcrumb_home', 'Home')
-
-    def get_content_template(self, source, **context):
-        """
-        The template to use for parsed content
-        """
-        theme = context.get('meta', {}).get('theme', None)
-        if theme is None:
-            template = self.default.get('content_template', 'default.html')
-        else:
-            template = '%s.html' % theme
-
-        return self.environment.get_template(template)
+        return self.config.get('breadcrumb_home', 'Home')
 
     def get_index_template(self):
         """
         The template to use for the index
         """
 
-        template = self.default.get('index_template', 'index.html')
+        template = self.config.get('index_template', 'index.html')
         return self.environment.get_template(template)
 
     def get_theme_public(self):
@@ -90,10 +78,21 @@ class Config:
 
         return os.path.join(self.themedir, 'public')
 
-    def get_markdown_extensions(self):
+    def get_content_template(self, source, theme):
         """
-        List of Python Markdown extesions
+        The template to use for parsed content
         """
+        template = self._theme(theme, 'content_template', 'default.html')
 
-        exts = self.default.get('markdown_extensions', [])
+        return self.environment.get_template(template)
+
+    def get_markdown_extensions(self, theme):
+        """
+        List of Python Markdown extensions
+        """
+        exts = self._theme(theme, 'markdown_extensions', [])
         return filter(None, exts)  # Removes empty lines
+
+    def _theme(self, theme, key, default):
+        cfg = self.config.get('themes', {}).get(theme, {})
+        return cfg.get(key, default)
