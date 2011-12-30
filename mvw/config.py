@@ -1,9 +1,9 @@
 from jinja2 import Environment, FileSystemLoader
-from markdown import Markdown
 
 import os
 import sys
 import codecs
+import yaml
 
 
 class Config:
@@ -24,12 +24,10 @@ class Config:
         self.themedir = os.path.join(mvw_root, 'theme')
 
         # Load config
-        default = os.path.join(mvw_root, 'config.md')
+        default = os.path.join(mvw_root, 'config.yaml')
         if os.path.isfile(default):
-            md = Markdown(extensions=['meta'])
             with codecs.open(default, encoding='utf-8') as src:
-                md.convert(src.read())
-                self.default = md.Meta
+                self.default = yaml.load(src) 
         else:
             # No config is OK, we'll just use defaults
             self.default = {}
@@ -63,7 +61,7 @@ class Config:
         The text for the breadcrumb at the site root
         """
 
-        return self.default.get('breadcrumb-home', ['Home'])[0]
+        return self.default.get('breadcrumb_home', 'Home')
 
     def get_content_template(self, source, **context):
         """
@@ -71,7 +69,7 @@ class Config:
         """
         theme = context.get('meta', {}).get('theme', None)
         if theme is None:
-            template = self.default.get('content-template', ['default.html'])[0]
+            template = self.default.get('content_template', 'default.html')
         else:
             template = '%s.html' % theme
 
@@ -82,7 +80,7 @@ class Config:
         The template to use for the index
         """
 
-        template = self.default.get('index-template', ['index.html'])[0]
+        template = self.default.get('index_template', 'index.html')
         return self.environment.get_template(template)
 
     def get_theme_public(self):
@@ -97,5 +95,5 @@ class Config:
         List of Python Markdown extesions
         """
 
-        exts = self.default.get('markdown-extensions', [])
+        exts = self.default.get('markdown_extensions', [])
         return filter(None, exts)  # Removes empty lines
