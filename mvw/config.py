@@ -65,12 +65,16 @@ class Config:
 
         return self.default.get('breadcrumb-home', ['Home'])[0]
 
-    def get_content_template(self, source):
+    def get_content_template(self, source, **context):
         """
         The template to use for parsed content
         """
+        theme = context.get('meta', {}).get('theme', None)
+        if theme is None:
+            template = self.default.get('content-template', ['default.html'])[0]
+        else:
+            template = '%s.html' % theme
 
-        template = self.default.get('content-template', ['default.html'])[0]
         return self.environment.get_template(template)
 
     def get_index_template(self):

@@ -101,7 +101,6 @@ class Generator:
         with codecs.open(source, encoding='utf-8') as src:
             parsed = md.convert(src.read())
 
-        template = self.config.get_content_template(source)
         context = dict(content=parsed,
                        title=self.title(destination),
                        breadcrumb=self.breadcrumb(destination))
@@ -113,6 +112,7 @@ class Generator:
         context['Meta'] = meta
         context['meta'] = {k: ' '.join(v) for k, v in meta.items()}
 
+        template = self.config.get_content_template(source, **context)
         rendered = template.render(**context)
 
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
