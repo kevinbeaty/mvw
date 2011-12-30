@@ -116,7 +116,7 @@ class Generator:
         exts = self.config.get_markdown_extensions(theme=theme)
         md = Markdown(extensions=exts)
 
-        context['content'] = md.convert('\n'.join(lines))
+        context['content'] = md.convert(''.join(lines))
 
         template = self.config.get_content_template(source, theme=theme)
         rendered = template.render(**context)
