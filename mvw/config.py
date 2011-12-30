@@ -2,6 +2,7 @@ from jinja2 import Environment, FileSystemLoader
 from markdown import Markdown
 
 import os
+import sys
 import codecs
 
 
@@ -22,6 +23,7 @@ class Config:
         self.outputdir = os.path.join(mvw_root, 'site')
         self.themedir = os.path.join(mvw_root, 'theme')
 
+        # Load config
         default = os.path.join(mvw_root, 'config.md')
         if os.path.isfile(default):
             md = Markdown(extensions=['meta'])
@@ -32,6 +34,7 @@ class Config:
             # No config is OK, we'll just use defaults
             self.default = {}
 
+        # Setup template environment
         template = os.path.join(self.themedir, 'template')
         if os.path.exists(template):
             self.environment = Environment(loader=FileSystemLoader(template))
@@ -49,6 +52,11 @@ class Config:
                 $ mvw generate
 
                 """ % (template, self.sourcedir))
+
+        # Add extensions to path if exists
+        extensions = os.path.join(self.themedir, 'extensions')
+        if os.path.isdir(extensions):
+            sys.path.append(extensions)
 
     def get_breadcrumb_home(self):
         """
