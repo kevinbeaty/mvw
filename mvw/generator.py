@@ -154,14 +154,16 @@ class Generator:
         md = Markdown()
         lines = MetaPreprocessor(md).run(lines)
 
-        meta = {k: ' '.join(v) for k, v in md.Meta.items()}
-        context['Meta'] = md.Meta
+        Meta = md.Meta
+        meta = {k: ' '.join(v) for k, v in Meta.items()}
+        context['Meta'] = Meta
         context['meta'] = meta
 
         # Load theme from meta data if set
         theme = meta.get('theme', 'default')
         exts = self.config.get_markdown_extensions(theme=theme)
         md = Markdown(extensions=exts)
+        md.Meta = meta  # restore already parsed meta data
 
         context['content'] = md.convert(''.join(lines))
 
