@@ -254,7 +254,7 @@ nav a{
 	font-weight:bold;
 }
 
-nav a:hover, nav a:visited{
+nav a:hover, nav a:visited, nav a:link, nav a:active, nav a:focus{
 	color:#101010;
 }
 
