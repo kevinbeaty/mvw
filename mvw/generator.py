@@ -73,10 +73,10 @@ class Generator:
                     shutil.copy(src, dest)
 
             index = os.path.join(destpath, 'index.html')
-            child_indexes = [os.path.join(destpath, d, 'index.html') for d in dirs]
+            cindexes = [os.path.join(destpath, d, 'index.html') for d in dirs]
 
             pages = [TemplatePage(self, p['dest']) for p in sources]
-            children = [TemplatePage(self, c) for c in child_indexes]
+            children = [TemplatePage(self, c) for c in cindexes]
 
             pages.sort(key=by_title)
             children.sort(key=by_title)
@@ -85,7 +85,6 @@ class Generator:
                 self.parse(p['src'], p['dest'], pages)
 
             self.include_index(index, pages, children)
-
 
     def include_index(self, destination, pages, children):
         """
@@ -101,7 +100,45 @@ class Generator:
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
 
-    def parse(self, source, destination, pages=None):
+    def regenerate(self, destination):
+        """
+        If requesting an html page, and a source file
+        exists, regenerate. This allows auto regeneration
+        of requested pages if edited while served
+        """
+        dbase, dext = os.path.splitext(os.path.basename(destination))
+        if dext != '.html':
+            return
+
+        outputdir = self.config.outputdir
+        sourcedir = self.config.sourcedir
+
+        destdir = os.path.dirname(destination)
+
+        prefix = len(outputdir) + len(os.path.sep)
+        reldir = destdir[prefix:]
+        srcdir = os.path.join(sourcedir, reldir)
+
+        source_exts = ['.md', '.markdown']
+        sources = []
+        dests = []
+        for src in os.listdir(srcdir):
+            base, ext = os.path.splitext(os.path.basename(src))
+
+            if ext in source_exts:
+                sources.append(os.path.join(srcdir, src))
+                dests.append(os.path.join(destdir, "%s%s" % (base, '.html')))
+
+        pages = [TemplatePage(self, d) for d in dests]
+        pages.sort(key=lambda p: p.title)
+
+        for source_ext in source_exts:
+            source = os.path.join(sourcedir, '%s%s' % (dbase, source_ext))
+            if source in sources:
+                print("Regenerating %s %s" % (source, destination))
+                self.parse(source, destination, pages)
+
+    def parse(self, source, destination, pages):
         """
         Parses the source file and saves to the destination
         """

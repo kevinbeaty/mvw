@@ -42,17 +42,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
         dest = os.path.join(generator.config.outputdir, path)
 
-        # If requesting an html page, and a source file
-        # exists, regenerate. This allows auto regeneration
-        # of requested pages if edited while served
-        base, ext = os.path.splitext(path)
-        if ext == '.html':
-            for source_ext in ['.md', '.markdown']:
-                source = os.path.join(generator.config.sourcedir,
-                        "%s%s" % (base, source_ext))
-                if os.path.exists(source):
-                    print("Regenerating %s %s" % (source, dest))
-                    generator.parse(source, dest)
+        # Auto regenerate requested pages if possible
+        generator.regenerate(dest)
 
         return dest
 
