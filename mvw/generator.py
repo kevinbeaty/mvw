@@ -132,16 +132,16 @@ class Generator:
         outputdir = self.config.outputdir
         prefix = len(outputdir) + len(os.path.sep)
         destdir = os.path.dirname(destination[prefix:])
+        dest = destination[:prefix]
 
-        home = self.config.get_breadcrumb_home()
-        crumb = '<ul><li><a href="/">%s</a></li>' % home
-        href = "/"
+        pages = []
+        pages.append(TemplatePage(self, os.path.join(outputdir, 'index.html')))
         for p in destdir.split(os.path.sep):
             if len(p) > 0:
-                href += '%s/' % p
-                crumb += '<li><a href="%s">%s</a></li>' % (href, self.title(p))
-        crumb += '</ul>'
-        return crumb
+                dest = os.path.join(dest, p)
+                pages.append(TemplatePage(self, dest))
+
+        return pages
 
     def title(self, path):
         """

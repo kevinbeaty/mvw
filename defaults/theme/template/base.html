@@ -25,7 +25,13 @@
         <header class="wrapper clearfix">
             <h1 id="title">{{ title }}</h1>
             <nav>
-                {{ breadcrumb }}
+                <ul>
+                    {% for c in breadcrumb %}
+                    <li>
+                        <a href="{{ c.url }}">{{ c.title }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
             </nav>
         </header>
         {% endblock %}
