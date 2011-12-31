@@ -83,6 +83,10 @@ class Generator:
         pages = [TemplatePage(self, p) for p in pages]
         children = [TemplatePage(self, c) for c in children]
 
+        by_title = lambda p: p.title
+        pages.sort(key=by_title)
+        children.sort(key=by_title)
+
         template = self.config.get_index_template()
         rendered = template.render(pages=pages,
                                    children=children,
