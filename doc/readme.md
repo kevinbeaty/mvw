@@ -7,22 +7,30 @@ MVW is a minimal personal wiki engine.
 1. Install
 
         :::bash
-        $ mkproject wiki       # Creates a virtualenvwrapper project
-        $ pip install -e git://github.com/simplectic/mvw.git#egg=MVW
-        $ mvw init             # Initializes the wiki 
+        # Create a virtualenvwrapper project
+        $ mkproject wiki
+        # Install from github
+        $ pip install -e \
+        > git://github.com/simplectic/mvw.git#egg=MVW
+        # Initialize the wiki
+        $ mvw init
 
 2. Create
 
         :::bash
-        $ vim notes.md         # Use your favorite editor to create content
-        $ vim git/install.md   # Directory trees will be preserved
+        # Use your favorite editor to create content
+        $ vim notes.md
+        # Directory trees will be preserved
+        $ vim git/install.md   
 
 3. View
 
         :::bash
-        $ mvw generate         # Generates the static site
-        $ mvw serve            # Locally serve the wiki. Markdown files
-                               # are regenerated when page is refreshed
+        # Generates the static site
+        $ mvw generate
+        # Locally serve the wiki. Markdown files
+        # are regenerated when page is refreshed
+        $ mvw serve
 
 ## Longer start
 
@@ -30,7 +38,8 @@ MVW is a minimal personal wiki engine.
 
         :::bash
         $ mkproject wiki 
-        $ pip install -e git://github.com/simplectic/mvw.git#egg=MVW
+        $ pip install -e \
+        > git://github.com/simplectic/mvw.git#egg=MVW
 
     The [`mkproject`][3] command is part of [virtualenvwrapper][2]
     It will allow you to call `deactivate` when you are done and 

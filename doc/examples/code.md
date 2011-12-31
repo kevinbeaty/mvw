@@ -1,5 +1,3 @@
-# Code Hiliting 
-
 [Pygments][1] is used for code highlighting with the [CodeHilite][2] extension.
 
 If you want to hilite code without line numbers, use `:::{language}` as the first line of the indented code block.
