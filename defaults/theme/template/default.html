@@ -2,3 +2,17 @@
 {% block content %}
 {{ content }}
 {% endblock %}
+{% block aside %}
+    {% if pages %}
+    <aside>
+        <h2>Pages</h2>
+        <ul>
+            {% for p in pages %}
+            <li>
+                <a href="{{ p.url }}">{{ p.title }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </aside>
+    {% endif %}
+{% endblock %}

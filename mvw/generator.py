@@ -49,6 +49,8 @@ class Generator:
         outputdir = self.config.outputdir
         prefix = len(sourcedir) + len(os.path.sep)
 
+        by_title = lambda p: p.title
+
         for root, dirs, files in os.walk(sourcedir):
             # Prune hidden directories and files
             dirs[:] = [d for d in dirs if not d.startswith('.')]
@@ -58,35 +60,38 @@ class Generator:
             if not os.path.exists(destpath):
                 os.makedirs(destpath)
 
-            pages = []
+            sources = []
             for f in files:
                 src = os.path.join(root, f)
                 base, ext = os.path.splitext(f)
 
                 if ext in ['.md', '.markdown']:
                     dest = os.path.join(destpath, "%s%s" % (base, '.html'))
-                    self.parse(src, dest)
-                    pages.append(dest)
+                    sources.append(dict(src=src, dest=dest))
                 else:
                     dest = os.path.join(destpath, f)
                     shutil.copy(src, dest)
 
             index = os.path.join(destpath, 'index.html')
-            dirs = [os.path.join(destpath, d, 'index.html') for d in dirs]
-            self.include_index(index, pages, dirs)
+            child_indexes = [os.path.join(destpath, d, 'index.html') for d in dirs]
+
+            pages = [TemplatePage(self, p['dest']) for p in sources]
+            children = [TemplatePage(self, c) for c in child_indexes]
+
+            pages.sort(key=by_title)
+            children.sort(key=by_title)
+
+            for p in sources:
+                self.parse(p['src'], p['dest'], pages)
+
+            self.include_index(index, pages, children)
+
 
     def include_index(self, destination, pages, children):
         """
         Includes the index page for the specified destination
         pages and children
         """
-        pages = [TemplatePage(self, p) for p in pages]
-        children = [TemplatePage(self, c) for c in children]
-
-        by_title = lambda p: p.title
-        pages.sort(key=by_title)
-        children.sort(key=by_title)
-
         template = self.config.get_index_template()
         rendered = template.render(pages=pages,
                                    children=children,
@@ -96,13 +101,14 @@ class Generator:
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
 
-    def parse(self, source, destination):
+    def parse(self, source, destination, pages=None):
         """
         Parses the source file and saves to the destination
         """
 
         context = dict(title=self.title(destination),
-                       breadcrumb=self.breadcrumb(destination))
+                       breadcrumb=self.breadcrumb(destination),
+                       pages=pages)
 
         with codecs.open(source, encoding='utf-8') as src:
             lines = src.readlines()
