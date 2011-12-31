@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     {% if pages %}
-    <h1>Pages</h1>
+    <h2>Pages</h2>
     <ul>
         {% for p in pages %}
         <li>
@@ -12,7 +12,7 @@
     {% endif %}
 
     {% if children %}
-    <h1>Children</h1>
+    <h2>Children</h2>
     <ul>
         {% for c in children %}
         <li>
