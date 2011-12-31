@@ -133,7 +133,7 @@ class Generator:
         pages.sort(key=lambda p: p.title)
 
         for source_ext in source_exts:
-            source = os.path.join(sourcedir, '%s%s' % (dbase, source_ext))
+            source = os.path.join(srcdir, '%s%s' % (dbase, source_ext))
             if source in sources:
                 print("Regenerating %s %s" % (source, destination))
                 self.parse(source, destination, pages)
