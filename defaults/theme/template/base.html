@@ -9,8 +9,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
     <title>{{ title }}</title>
-    <meta name="description" content="">
-    <meta name="author" content="">
 
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
@@ -50,8 +48,9 @@
     </div>
 
     <div id="footer-container">
-        <footer class="wrapper">
+        <footer class="wrapper clearfix">
         {% block footer %}
+        <small id='created-by'>Created using <a href="http://mvw.simplectic.com">MVW</a></small>
         {% endblock %}
         </footer>
     </div>
