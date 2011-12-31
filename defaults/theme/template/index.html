@@ -10,15 +10,18 @@
         {% endfor %}
     </ul>
     {% endif %}
-
+{% endblock %}
+{% block aside %}
     {% if children %}
-    <h2>Children</h2>
-    <ul>
-        {% for c in children %}
-        <li>
-            <a href="{{ c.url }}">{{ c.title }}</a>
-        </li>
-        {% endfor %}
-    </ul>
+    <aside>
+        <h2>Children</h2>
+        <ul>
+            {% for c in children %}
+            <li>
+                <a href="{{ c.url }}">{{ c.title }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </aside>
     {% endif %}
 {% endblock %}
