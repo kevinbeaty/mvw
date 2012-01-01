@@ -222,22 +222,20 @@ body{ font:16px/26px Helvetica, Helvetica Neue, Arial; }
     ALL: Gray Theme
    =================== */
 
-#header-container{ border-bottom: 20px solid #e4e4e4; }
-#footer-container{ border-top:    20px solid #e4e4e4; }
-#main aside      { border-top:    20px solid #e4e4e4; }
+#header-container{ border-bottom: 10px solid #f4f4f4; }
+#main aside      { border-top:    10px solid #f4f4f4; }
 
 #header-container,
-#footer-container,
 #main aside{
-	background:#f1f1f1;
+	background:#f8f8f8;
 }
 #main aside ul { list-style: none; margin: 0; padding: 0; }
 
-#title{ color:#101010; }
+#title{ color:#505050; }
 
 
-::-moz-selection { background: #073642; color: #f1f1f1; text-shadow: none; }
-::selection      { background: #073642; color: #f1f1f1; text-shadow: none; }
+::-moz-selection { background: #0736f2; color: #f4f4f4; text-shadow: none; }
+::selection      { background: #0736f2; color: #f4f4f4; text-shadow: none; }
 
 /* ==============
     MOBILE: Menu
@@ -248,7 +246,7 @@ nav a{
 	margin-bottom:10px;
 	padding:15px 0;
 
-	background:#e4e4e4;
+	background:#f4f4f4;
 	color:#101010;
 
 	text-align:center;
@@ -256,13 +254,6 @@ nav a{
 	font-weight:bold;
 }
 
-nav a:hover, nav a:visited, nav a:link, nav a:active, nav a:focus{
-	color:#101010;
-}
-
-nav a:hover{
-	text-decoration:underline;
-}
 
 /* ==============
     MOBILE: Main
@@ -282,13 +273,17 @@ nav a:hover{
 }
 
 #footer-container footer{
-	color:#7e7e7e;
 	padding:20px 0;
 }
 
 #created-by {
+    color:#aaa;
     float: right;
 }
+
+#created-by a:link { text-decoration: none; color: #aac; }
+#created-by a:visited { text-decoration: none; color: #aaf; }
+#created-by a:hover { text-decoration: none; color: #c33; } 
 
 /* ===============
     ALL: IE Fixes
@@ -430,9 +425,9 @@ nav a:hover{
 
 	#header-container,
 	#main aside{
-		-webkit-box-shadow:0 5px 10px #aaa;
-		   -moz-box-shadow:0 5px 10px #aaa;
-		        box-shadow:0 5px 10px #aaa;
+		-webkit-box-shadow:0 3px 6px #aaa;
+		   -moz-box-shadow:0 3px 6px #aaa;
+		        box-shadow:0 3px 6px #aaa;
 	}
 
 /* ============
