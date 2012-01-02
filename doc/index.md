@@ -7,8 +7,6 @@ MVW is a minimal personal wiki engine.
 1. Install
 
         :::bash
-        # Create a virtualenvwrapper project
-        $ mkproject wiki
         # Install from github
         $ pip install -e \
         > git://github.com/simplectic/mvw.git#egg=MVW
@@ -67,14 +65,9 @@ MVW is a minimal personal wiki engine.
     current working directory. Changes to the markdown files will be
     regenerated automatically as they are requested.
     
-    You can **optionally** use `mvw init` to mark the current directory as
-    the wiki root. Once you use `mvw init`, you can call `mvw` (or the alias
-    `mvw serve`) in any directory under the wiki root and the wiki will be 
-    served from the root instead of the current directory.  
-
-    **Note** `mvw` and `mvw serve` should **only** be used to serve your
-    wiki locally.  If you want to deploy your wiki, [generate][7] a static
-    site.
+    **Note**: `mvw` (or the alias `mvw serve`) should **only** be used to
+    serve your wiki locally.  If you want to deploy your wiki, 
+    [generate a static site][7].
 
 
 [1]: http://github.com/simplectic/mvw
