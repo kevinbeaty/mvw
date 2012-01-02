@@ -80,7 +80,7 @@ class Generator:
             _pagesort(children)
 
             for p in sources:
-                self.convert(p['src'], p['dest'], pages)
+                self.convert(p['src'], p['dest'], pages, children)
 
             self.convert_index(index, pages, children)
 
@@ -159,14 +159,14 @@ class Generator:
                 childdirs.append(os.path.join(destdir, src, 'index.html'))
 
         pages = [TemplatePage(self, d) for d in dests]
+        children = [TemplatePage(self, c) for c in childdirs]
         _pagesort(pages)
+        _pagesort(children)
 
         if dbase == 'index':
             print("Regenerating Index %s" % destination)
             if not os.path.exists(destdir):
                 os.makedirs(destdir)
-            children = [TemplatePage(self, c) for c in childdirs]
-            _pagesort(children)
             self.include_index(destination, pages, children)
             return
 
@@ -176,16 +176,17 @@ class Generator:
                 print("Regenerating %s %s" % (source, destination))
                 if not os.path.exists(destdir):
                     os.makedirs(destdir)
-                self.convert(source, destination, pages)
+                self.convert(source, destination, pages, children)
 
-    def convert(self, source, destination, pages):
+    def convert(self, source, destination, pages, children):
         """
         Converts the source file and saves to the destination
         """
 
         context = dict(title=self.title(destination),
                        breadcrumb=self.breadcrumb(destination),
-                       pages=pages)
+                       pages=pages,
+                       children=children)
 
         with codecs.open(source, encoding='utf-8') as src:
             lines = src.readlines()
