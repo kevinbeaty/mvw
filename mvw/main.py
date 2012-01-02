@@ -15,9 +15,9 @@ def run():
     """
 
     usage = """
+            %prog [serve] : Serve the wiki locally
             %prog init : Initializes MVW at the current directory
-            %prog generate : Generates the site
-            %prog serve: Serve the generated site
+            %prog generate : Generates the static site
             """
     desc = """Minimal Viable Wiki
             http://mvw.simplectic.com"""
@@ -27,10 +27,12 @@ def run():
     (options, args) = opts.parse_args()
 
     if len(args) == 0:
+        command = "serve"
+    elif len(args) == 1:
+        command = args[0]
+    else:
         opts.print_usage()
         sys.exit(-1)
-
-    command = args[0]
 
     start = os.getcwd()
     if command == "init":
