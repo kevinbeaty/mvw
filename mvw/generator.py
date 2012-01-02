@@ -80,23 +80,9 @@ class Generator:
             _pagesort(children)
 
             for p in sources:
-                self.parse(p['src'], p['dest'], pages)
+                self.convert(p['src'], p['dest'], pages)
 
-            self.include_index(index, pages, children)
-
-    def include_index(self, destination, pages, children):
-        """
-        Includes the index page for the specified destination
-        pages and children
-        """
-        template = self.config.get_index_template()
-        rendered = template.render(pages=pages,
-                                   children=children,
-                                   title=self.title(destination),
-                                   breadcrumb=self.breadcrumb(destination),
-                                   Meta={}, meta={})
-        with codecs.open(destination, mode='w', encoding='utf-8') as dst:
-            dst.write(rendered)
+            self.convert_index(index, pages, children)
 
     def regenerate(self, relpath):
         """
@@ -190,11 +176,11 @@ class Generator:
                 print("Regenerating %s %s" % (source, destination))
                 if not os.path.exists(destdir):
                     os.makedirs(destdir)
-                self.parse(source, destination, pages)
+                self.convert(source, destination, pages)
 
-    def parse(self, source, destination, pages):
+    def convert(self, source, destination, pages):
         """
-        Parses the source file and saves to the destination
+        Converts the source file and saves to the destination
         """
 
         context = dict(title=self.title(destination),
@@ -224,6 +210,20 @@ class Generator:
         template = self.config.get_content_template(source, theme=theme)
         rendered = template.render(**context)
 
+        with codecs.open(destination, mode='w', encoding='utf-8') as dst:
+            dst.write(rendered)
+
+    def convert_index(self, destination, pages, children):
+        """
+        Includes the index page for the specified destination
+        pages and children
+        """
+        template = self.config.get_index_template()
+        rendered = template.render(pages=pages,
+                                   children=children,
+                                   title=self.title(destination),
+                                   breadcrumb=self.breadcrumb(destination),
+                                   Meta={}, meta={})
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
 
