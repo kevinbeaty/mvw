@@ -84,15 +84,42 @@ class Generator:
             if not os.path.exists(index):
                 self.convert(None, index, pages, children)
 
+    def resource_path(self, relpath):
+        """
+        Retrieve a path to a static resource.
+
+        Checks for resources and directories in theme public
+        first and then falls back to path into source directory.
+        """
+
+        # Get base name and extension
+        dbase, dext = os.path.splitext(os.path.basename(relpath))
+        reldir = os.path.dirname(relpath)
+
+        # Return files requested from theme public
+        theme_public = self.config.get_theme_public()
+        src_public = os.path.join(theme_public, relpath)
+        if os.path.exists(src_public):
+            return src_public 
+
+        # If requesting index in theme public, return directory
+        # Ignore requests for index at root since this will
+        # be generated from source
+        if reldir and not dext:
+            themedir = os.path.dirname(src_public)
+            if os.path.isdir(themedir):
+                return themedir 
+
+        # Get resources from source
+        return os.path.join(self.config.sourcedir, relpath)
+
     def regenerate(self, relpath):
         """
-        Regenerate requested pages and resources given
-        a relative path.
-
-        If resource is available in theme public, copy.
+        Regenerate requested pages given a relative path.
 
         If requesting an html page, and a source file
-        exists, regenerate.
+        exists, regenerates from source and returns 
+        content. Otherwise returns None
         """
 
         # Get base name and extension
@@ -100,7 +127,7 @@ class Generator:
 
         if dbase.startswith('.'):
             # Ignore hidden files
-            return
+            return None
 
         if not dext:
             # Generate index.html for requested directory
@@ -108,37 +135,15 @@ class Generator:
             dbase = 'index'
             dext = '.html'
 
-        destination = os.path.join(self.config.outputdir, relpath)
-        destdir = os.path.dirname(destination)
+        # Try to regenerate from source
         reldir = os.path.dirname(relpath)
         srcdir = os.path.join(self.config.sourcedir, reldir)
-
-        # Copy files requested from theme public
-        theme_public = self.config.get_theme_public()
-        src_public = os.path.join(theme_public, relpath)
-        if os.path.exists(src_public):
-            print('Copying %s to %s' % (src_public, destdir))
-            if not os.path.exists(destdir):
-                os.makedirs(destdir)
-            shutil.copy(src_public, destdir)
-            return
-
-        # If requesting index in theme public, copy tree
-        # Ignore requests for index at root since this will
-        # be generated from source
-        if reldir and dbase == 'index':
-            themedir = os.path.dirname(src_public)
-            if os.path.isdir(themedir):
-                print('Copying tree %s to %s' % (themedir, destdir))
-                if os.path.exists(destdir):
-                    shutil.rmtree(destdir)
-                shutil.copytree(themedir, destdir)
-                return
-
-        # Try to regenerate from source
         if dext != '.html' or not os.path.exists(srcdir):
             # Can only generate html from source in directories that exist
-            return
+            return None
+
+        destination = os.path.join(self.config.outputdir, relpath)
+        destdir = os.path.dirname(destination)
 
         source_exts = ['.md', '.markdown']
         sources = []
@@ -164,20 +169,14 @@ class Generator:
         for source_ext in source_exts:
             source = os.path.join(srcdir, '%s%s' % (dbase, source_ext))
             if source in sources:
-                print("Regenerating %s %s" % (source, destination))
-                if not os.path.exists(destdir):
-                    os.makedirs(destdir)
-                self.convert(source, destination, pages, children)
-                return
+                return self.convert(source, destination, pages, children)
 
-        # If requesting index, and index source does not exist,
-        # generate with empty content
         if dbase == 'index':
-            print("Regenerating Index %s" % destination)
-            if not os.path.exists(destdir):
-                os.makedirs(destdir)
-            self.convert(None, destination, pages, children)
+            # If requesting index, and index source does not exist,
+            # generate with empty content
+            return self.convert(None, destination, pages, children)
 
+        return None
 
     def convert(self, source, destination, pages, children):
         """
@@ -222,8 +221,12 @@ class Generator:
         template = self.config.get_content_template(source, theme=theme)
         rendered = template.render(**context)
 
-        with codecs.open(destination, mode='w', encoding='utf-8') as dst:
-            dst.write(rendered)
+        # Write to destination if destination directory exists
+        if os.path.isdir(os.path.dirname(destination)):
+            with codecs.open(destination, mode='w', encoding='utf-8') as dst:
+                dst.write(rendered)
+
+        return rendered
 
     def breadcrumb(self, destination):
         """

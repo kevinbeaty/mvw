@@ -16,16 +16,44 @@ class RequestHandler(SimpleHTTPRequestHandler):
     A SimpleHTTPRequestHandler that serves from the root
     of the generated site and regenerates requested source files
     """
+    def do_GET(self):
+        """Serve a GET request."""
+        content = self._regenerate(self.path)
+        if content:
+            self._send_regenerated_head(content)
+            self.wfile.write(content)
+        else:
+            SimpleHTTPRequestHandler.do_GET(self)
+
+    def do_HEAD(self):
+        """Serve a HEAD request."""
+        content = self._regenerate(self.path)
+        if content:
+            self._send_regenerated_head(content)
+        else:
+            SimpleHTTPRequestHandler.do_HEAD(self)
+
     def translate_path(self, path):
+        path = self._relpath(path)
+        generator = self.server.generator
+        return generator.resource_path(path)
+
+    def _regenerate(self, path):
+        path = self._relpath(path)
+        generator = self.server.generator
+        content = generator.regenerate(path)
+        if content:
+            return content.encode('utf-8')
+
+        return None
+
+    def _relpath(self, path):
         """
         Translates the path to a file name.
         Based on translate_path implementation in
-        SimpleHTTPRequestHandler but starts at
-        outputdir instead of cwd.
-
-        Also regenerates requested source files.
+        SimpleHTTPRequestHandler but generates
+        relative path, not path from current dir.
         """
-        generator = self.server.generator
 
         # abandon query parameters
         path = path.split('?', 1)[0]
@@ -40,11 +68,15 @@ class RequestHandler(SimpleHTTPRequestHandler):
             if word not in (os.curdir, os.pardir):
                 path = os.path.join(path, word)
 
-        # Auto regenerate requested pages if possible
-        generator.regenerate(path)
+        return path
 
-        dest = os.path.join(generator.config.outputdir, path)
-        return dest
+    def _send_regenerated_head(self, content):
+        """ Sends head for regenerated content """
+        self.send_response(200)
+        self.send_header("Content-type", 'text/html')
+        self.send_header("Content-Length", len(content))
+        self.send_header("Last-Modified", self.date_time_string())
+        self.end_headers()
 
 
 class Server(HTTPServer):
