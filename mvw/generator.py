@@ -136,6 +136,8 @@ class Generator:
             source = os.path.join(srcdir, '%s%s' % (dbase, source_ext))
             if source in sources:
                 print("Regenerating %s %s" % (source, destination))
+                if not os.path.exists(destdir):
+                    os.makedirs(destdir)
                 self.parse(source, destination, pages)
 
     def parse(self, source, destination, pages):
