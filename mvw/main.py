@@ -79,10 +79,6 @@ def serve(start):
 
 def create_generator(start):
     root = get_root(start)
-    if root is None:
-        print("Run mvw init on the root directory of wiki")
-        sys.exit(-4)
-
     return Generator(Config(root, get_defaults()))
 
 
