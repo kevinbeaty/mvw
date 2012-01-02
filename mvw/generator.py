@@ -73,11 +73,8 @@ class Generator:
             index = os.path.join(destpath, 'index.html')
             cindexes = [os.path.join(destpath, d, 'index.html') for d in dirs]
 
-            pages = [TemplatePage(self, p['dest']) for p in sources]
-            children = [TemplatePage(self, c) for c in cindexes]
-
-            _pagesort(pages)
-            _pagesort(children)
+            pages = self.pages(p['dest'] for p in sources)
+            children = self.pages(cindexes)
 
             for p in sources:
                 self.convert(p['src'], p['dest'], pages, children)
@@ -158,16 +155,14 @@ class Generator:
             elif os.path.isdir(srcpath):
                 childdirs.append(os.path.join(destdir, src, 'index.html'))
 
-        pages = [TemplatePage(self, d) for d in dests]
-        children = [TemplatePage(self, c) for c in childdirs]
-        _pagesort(pages)
-        _pagesort(children)
+        pages = self.pages(dests)
+        children = self.pages(childdirs)
 
         if dbase == 'index':
             print("Regenerating Index %s" % destination)
             if not os.path.exists(destdir):
                 os.makedirs(destdir)
-            self.include_index(destination, pages, children)
+            self.convert_index(destination, pages, children)
             return
 
         for source_ext in source_exts:
@@ -265,8 +260,11 @@ class Generator:
 
         return name.replace("_", " ").title()
 
-def _pagesort(pages):
-    pages.sort(key=lambda p: p.title)
+    def pages(self, dests):
+        pages = [TemplatePage(self, d) for d in dests]
+        pages.sort(key=lambda p: p.title)
+        return pages
+
 
 class TemplatePage:
     """
@@ -277,4 +275,3 @@ class TemplatePage:
         self.title = generator.title(destination)
         prefix = len(generator.config.outputdir)
         self.url = destination[prefix:].replace(os.path.sep, "/")
-
