@@ -12,8 +12,6 @@ MVW is a minimal personal wiki engine.
         # Install from github
         $ pip install -e \
         > git://github.com/simplectic/mvw.git#egg=MVW
-        # Initialize the wiki
-        $ mvw init
 
 2. Create
 
@@ -26,11 +24,9 @@ MVW is a minimal personal wiki engine.
 3. View
 
         :::bash
-        # Generates the static site
-        $ mvw generate
         # Locally serve the wiki. Markdown files
         # are regenerated when page is refreshed
-        $ mvw serve
+        $ mvw
 
 ## Longer start
 
@@ -58,42 +54,27 @@ MVW is a minimal personal wiki engine.
 
     MVW uses the mostly reference implementation compliant 
     [Python-Markdown][5] with the [code hiliting][6] extension.
+    Navigation links are generated automatically. Index files 
+    are generated with empty content if index source files are
+    not present.
     
-3. Initialize mvw at the root of your wiki
+3. Serve the wiki locally
 
         :::bash
-        $ mvw init
+        $ mvw 
 
-    Creates an `.mvw` folder used for the generation of the site
-    and to identify the site root for other commands.  Markdown files 
-    can be created in any directory tree under the wiki root and this
-    directory tree will be preserved when generating the site.
-
-4. Generate the wiki
-
-        :::bash
-        $ mvw generate
-
-    Call anywhere under the wiki root. MVW will search up the directory 
-    tree for the `.mvw` folder created using `mvw init`.  A static site
-    will be (re)generated in `.mvw/site` for the entire directory tree. 
-    Markdown files will be parsed and surrounded with a template. Hidden 
-    files and directories are ignored. Everything else is simply copied. 
-    Directory trees are preserved.
+    This serves the wiki locally at <http://localhost:8000> from the 
+    current working directory. Changes to the markdown files will be
+    regenerated automatically as they are requested.
     
-    **Note**: `mvw serve` can automatically regenerate the markdown files 
-    on demand, so this command is not always required.
+    You can **optionally** use `mvw init` to mark the current directory as
+    the wiki root. Once you use `mvw init`, you can call `mvw` (or the alias
+    `mvw serve`) in any directory under the wiki root and the wiki will be 
+    served from the root instead of the current directory.  
 
-5. Serve the wiki locally
-
-        :::bash
-        $ mvw serve
-
-    This serves the generated site at <http://localhost:8000>. This command
-    can also be run in any directory under the wiki root.  You should run
-    `mvw generate` at least once to ensure the template files are copied
-    and index files are generated. Changes to the markdown files will
-    be regenerated automatically as they are requested.
+    **Note** `mvw` and `mvw serve` should **only** be used to serve your
+    wiki locally.  If you want to deploy your wiki, [generate][7] a static
+    site.
 
 
 [1]: http://github.com/simplectic/mvw
@@ -102,3 +83,4 @@ MVW is a minimal personal wiki engine.
 [4]: http://daringfireball.net/projects/markdown/
 [5]: http://www.freewisdom.org/projects/python-markdown
 [6]: /examples/code.html
+[7]: /site_generation.html
