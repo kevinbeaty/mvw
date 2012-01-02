@@ -79,7 +79,10 @@ class Generator:
             for p in sources:
                 self.convert(p['src'], p['dest'], pages, children)
 
-            self.convert_index(index, pages, children)
+            # If index not generated as part of pages, generate
+            # an index with empty content
+            if not os.path.exists(index):
+                self.convert(None, index, pages, children)
 
     def regenerate(self, relpath):
         """
@@ -158,13 +161,6 @@ class Generator:
         pages = self.pages(dests)
         children = self.pages(childdirs)
 
-        if dbase == 'index':
-            print("Regenerating Index %s" % destination)
-            if not os.path.exists(destdir):
-                os.makedirs(destdir)
-            self.convert_index(destination, pages, children)
-            return
-
         for source_ext in source_exts:
             source = os.path.join(srcdir, '%s%s' % (dbase, source_ext))
             if source in sources:
@@ -172,54 +168,60 @@ class Generator:
                 if not os.path.exists(destdir):
                     os.makedirs(destdir)
                 self.convert(source, destination, pages, children)
+                return
+
+        # If requesting index, and index source does not exist,
+        # generate with empty content
+        if dbase == 'index':
+            print("Regenerating Index %s" % destination)
+            if not os.path.exists(destdir):
+                os.makedirs(destdir)
+            self.convert(None, destination, pages, children)
+
 
     def convert(self, source, destination, pages, children):
         """
         Converts the source file and saves to the destination
         """
 
+        breadcrumb = self.breadcrumb(destination)
+        pages = [p for p in pages if p not in breadcrumb]
         context = dict(title=self.title(destination),
-                       breadcrumb=self.breadcrumb(destination),
+                       breadcrumb=breadcrumb,
                        pages=pages,
                        children=children)
 
-        with codecs.open(source, encoding='utf-8') as src:
-            lines = src.readlines()
+        content = ""
+        theme = 'default'
+        meta = {}
+        Meta = {}
 
-        # Parse metadata first so we can get theme extensions
-        md = Markdown()
-        lines = MetaPreprocessor(md).run(lines)
+        if source and os.path.exists(source):
+            with codecs.open(source, encoding='utf-8') as src:
+                lines = src.readlines()
 
-        Meta = md.Meta
-        meta = {k: ' '.join(v) for k, v in Meta.items()}
+            # Parse metadata first so we can get theme extensions
+            md = Markdown()
+            lines = MetaPreprocessor(md).run(lines)
+
+            Meta = md.Meta
+            meta = {k: ' '.join(v) for k, v in Meta.items()}
+
+            # Load theme from meta data if set
+            theme = meta.get('theme', 'default')
+            exts = self.config.get_markdown_extensions(theme=theme)
+            md = Markdown(extensions=exts)
+            md.Meta = meta  # restore already parsed meta data
+
+            content = md.convert(''.join(lines))
+
+        context['content'] = content
         context['Meta'] = Meta
         context['meta'] = meta
-
-        # Load theme from meta data if set
-        theme = meta.get('theme', 'default')
-        exts = self.config.get_markdown_extensions(theme=theme)
-        md = Markdown(extensions=exts)
-        md.Meta = meta  # restore already parsed meta data
-
-        context['content'] = md.convert(''.join(lines))
 
         template = self.config.get_content_template(source, theme=theme)
         rendered = template.render(**context)
 
-        with codecs.open(destination, mode='w', encoding='utf-8') as dst:
-            dst.write(rendered)
-
-    def convert_index(self, destination, pages, children):
-        """
-        Includes the index page for the specified destination
-        pages and children
-        """
-        template = self.config.get_index_template()
-        rendered = template.render(pages=pages,
-                                   children=children,
-                                   title=self.title(destination),
-                                   breadcrumb=self.breadcrumb(destination),
-                                   Meta={}, meta={})
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
 
@@ -275,3 +277,9 @@ class TemplatePage:
         self.title = generator.title(destination)
         prefix = len(generator.config.outputdir)
         self.url = destination[prefix:].replace(os.path.sep, "/")
+
+    def __eq__(self, other):
+        return self.url == other.url
+
+    def __ne__(self, other):
+        return self.url != other.url

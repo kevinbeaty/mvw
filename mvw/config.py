@@ -66,14 +66,6 @@ class Config:
 
         return self.config.get('breadcrumb_home', 'Home')
 
-    def get_index_template(self):
-        """
-        The template to use for the index
-        """
-
-        template = self.config.get('index_template', 'index.html')
-        return self.environment.get_template(template)
-
     def get_theme_public(self):
         """
         The directory containing all public theme assets (css, images, etc)
