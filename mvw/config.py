@@ -13,39 +13,11 @@ class Config:
     """
 
     def __init__(self, root, defaults):
+        if not root:
+            root = os.path.join(os.getcwd(), '.mvw')
+
+        root = os.path.normpath(root)
         defaults = os.path.normpath(defaults)
-
-        if root and os.path.exists(root):
-            root = os.path.normpath(root)
-            self._config_root(root, defaults)
-        else:
-            self._config_pwd(defaults)
-
-    def _config_pwd(self, defaults):
-        """
-        Initializes without mvw root (.mvw directory)
-        Serves from $PWD and generates into $PWD/site
-        """
-
-        self.config = {}
-        cwd = os.getcwd()
-        self.sourcedir = cwd
-        self.outputdir = os.path.join(cwd, '.mvw', 'site')
-        self.themedir = os.path.join(defaults, 'theme')
-
-        # Setup template environment
-        template = os.path.join(self.themedir, 'template')
-        self.environment = Environment(loader=FileSystemLoader(template))
-
-        # Add extensions to path if exists
-        extensions = os.path.join(self.themedir, 'extensions')
-        if os.path.isdir(extensions):
-            sys.path.append(extensions)
-
-    def _config_root(self, root, defaults):
-        """
-        Initializes with mvw root (.mvw directory)
-        """
 
         # Load config
         default = os.path.join(root, 'config.yaml')
