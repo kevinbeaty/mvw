@@ -24,9 +24,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
         outputdir instead of cwd.
 
         Also regenerates requested source files.
-
-        If requested file does not exist or cannot
-        be regenerated, falls back to theme public.
         """
         generator = self.server.generator
 
@@ -43,16 +40,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
             if word not in (os.curdir, os.pardir):
                 path = os.path.join(path, word)
 
-        dest = os.path.join(generator.config.outputdir, path)
-
         # Auto regenerate requested pages if possible
-        generator.regenerate(dest)
+        generator.regenerate(path)
 
-        # Try theme public if cannot find file in outputdir
-        # This might be caused by mvw serve before mvw generate
-        if not os.path.exists(dest):
-            dest = os.path.join(generator.config.get_theme_public(), path)
-
+        dest = os.path.join(generator.config.outputdir, path)
         return dest
 
 

@@ -100,36 +100,59 @@ class Generator:
         with codecs.open(destination, mode='w', encoding='utf-8') as dst:
             dst.write(rendered)
 
-    def regenerate(self, destination):
+    def regenerate(self, relpath):
         """
+        Regenerate requested pages and resources given
+        a relative path.
+
+        If resource is available in theme public, copy.
+
         If requesting an html page, and a source file
-        exists, regenerate. This allows auto regeneration
-        of requested pages if edited while served
+        exists, regenerate.
         """
 
-        dbase, dext = os.path.splitext(os.path.basename(destination))
+        # Get base name and extension
+        dbase, dext = os.path.splitext(os.path.basename(relpath))
 
-        # Generate index.html for requested directory
+        if dbase.startswith('.'):
+            # Ignore hidden files
+            return
+
         if not dext:
-            destination = os.path.join(destination, 'index.html')
+            # Generate index.html for requested directory
+            relpath = os.path.join(relpath, 'index.html')
             dbase = 'index'
             dext = '.html'
 
-        # Ignore hidden files or requests for anything other than html
-        if dbase.startswith('.') or dext != '.html':
+        destination = os.path.join(self.config.outputdir, relpath)
+        destdir = os.path.dirname(destination)
+        reldir = os.path.dirname(relpath)
+        srcdir = os.path.join(self.config.sourcedir, reldir)
+
+        # Copy files requested from theme public
+        theme_public = self.config.get_theme_public()
+        src_public = os.path.join(theme_public, relpath)
+        if os.path.exists(src_public):
+            if not os.path.exists(destdir):
+                os.makedirs(destdir)
+            shutil.copy(src_public, destdir)
             return
 
-        outputdir = self.config.outputdir
-        sourcedir = self.config.sourcedir
+        # If requesting index in theme public, copy tree
+        # Ignore requests for index at root since this will
+        # be generated from source
+        if reldir and dbase == 'index':
+            themedir = os.path.dirname(src_public)
+            if os.path.isdir(themedir):
+                if os.path.exists(destdir):
+                    shutil.rmtree(destdir)
+                shutil.copytree(themedir, destdir)
+                return
 
-        destdir = os.path.dirname(destination)
-
-        if not os.path.exists(destdir):
-            os.makedirs(destdir)
-
-        prefix = len(outputdir) + len(os.path.sep)
-        reldir = destdir[prefix:]
-        srcdir = os.path.join(sourcedir, reldir)
+        # Try to regenerate from source
+        if dext != '.html' or not os.path.exists(srcdir):
+            # Can only generate html from source in directories that exist
+            return
 
         source_exts = ['.md', '.markdown']
         sources = []
@@ -153,15 +176,20 @@ class Generator:
 
         if dbase == 'index':
             print("Regenerating Index %s" % destination)
+            if not os.path.exists(destdir):
+                os.makedirs(destdir)
             children = [TemplatePage(self, c) for c in childdirs]
             children.sort(key=lambda p: p.title)
             self.include_index(destination, pages, children)
-        else:
-            for source_ext in source_exts:
-                source = os.path.join(srcdir, '%s%s' % (dbase, source_ext))
-                if source in sources:
-                    print("Regenerating %s %s" % (source, destination))
-                    self.parse(source, destination, pages)
+            return
+
+        for source_ext in source_exts:
+            source = os.path.join(srcdir, '%s%s' % (dbase, source_ext))
+            if source in sources:
+                print("Regenerating %s %s" % (source, destination))
+                if not os.path.exists(destdir):
+                    os.makedirs(destdir)
+                self.parse(source, destination, pages)
 
     def parse(self, source, destination, pages):
         """
