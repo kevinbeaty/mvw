@@ -106,14 +106,26 @@ class Generator:
         exists, regenerate. This allows auto regeneration
         of requested pages if edited while served
         """
+
         dbase, dext = os.path.splitext(os.path.basename(destination))
-        if dext != '.html':
+
+        # Generate index.html for requested directory
+        if not dext:
+            destination = os.path.join(destination, 'index.html')
+            dbase = 'index'
+            dext = '.html'
+
+        # Ignore hidden files or requests for anything other than html
+        if dbase.startswith('.') or dext != '.html':
             return
 
         outputdir = self.config.outputdir
         sourcedir = self.config.sourcedir
 
         destdir = os.path.dirname(destination)
+
+        if not os.path.exists(destdir):
+            os.makedirs(destdir)
 
         prefix = len(outputdir) + len(os.path.sep)
         reldir = destdir[prefix:]
@@ -122,23 +134,34 @@ class Generator:
         source_exts = ['.md', '.markdown']
         sources = []
         dests = []
+        childdirs = []
         for src in os.listdir(srcdir):
+            # Ignore hidden files and directories
+            if src.startswith('.'):
+                continue
+
             base, ext = os.path.splitext(os.path.basename(src))
 
             if ext in source_exts:
                 sources.append(os.path.join(srcdir, src))
                 dests.append(os.path.join(destdir, "%s%s" % (base, '.html')))
+            elif os.path.isdir(src):
+                childdirs.append(os.path.join(destdir, src, 'index.html'))
 
         pages = [TemplatePage(self, d) for d in dests]
         pages.sort(key=lambda p: p.title)
 
-        for source_ext in source_exts:
-            source = os.path.join(srcdir, '%s%s' % (dbase, source_ext))
-            if source in sources:
-                print("Regenerating %s %s" % (source, destination))
-                if not os.path.exists(destdir):
-                    os.makedirs(destdir)
-                self.parse(source, destination, pages)
+        if dbase == 'index':
+            print("Regenerating Index %s" % destination)
+            children = [TemplatePage(self, c) for c in childdirs]
+            children.sort(key=lambda p: p.title)
+            self.include_index(destination, pages, children)
+        else:
+            for source_ext in source_exts:
+                source = os.path.join(srcdir, '%s%s' % (dbase, source_ext))
+                if source in sources:
+                    print("Regenerating %s %s" % (source, destination))
+                    self.parse(source, destination, pages)
 
     def parse(self, source, destination, pages):
         """
