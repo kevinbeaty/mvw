@@ -30,13 +30,16 @@ class Config:
             self.config = yaml.load(src)
 
         # Load sourcedir with default same directory that contains .mvw
-        self.sourcedir = self.config.get('sourcedir', os.path.split(root)[0])
+        self.sourcedir = self.config.get('sourcedir',
+                os.path.split(root)[0])
 
         # Load outputdir with default .mvw/site
-        self.outputdir = self.config.get('outputdir', os.path.join(root, 'site'))
+        self.outputdir = self.config.get('outputdir',
+                os.path.join(root, 'site'))
 
         # Load themedir with default .mvw/theme
-        self.themedir = self.config.get('themedir', os.path.join(root, 'theme'))
+        self.themedir = self.config.get('themedir',
+                os.path.join(root, 'theme'))
 
         # Load default theme if themedir does not exist
         if not os.path.isdir(self.themedir):

@@ -49,8 +49,6 @@ class Generator:
         outputdir = self.config.outputdir
         prefix = len(sourcedir) + len(os.path.sep)
 
-        by_title = lambda p: p.title
-
         for root, dirs, files in os.walk(sourcedir):
             # Prune hidden directories and files
             dirs[:] = [d for d in dirs if not d.startswith('.')]
@@ -78,8 +76,8 @@ class Generator:
             pages = [TemplatePage(self, p['dest']) for p in sources]
             children = [TemplatePage(self, c) for c in cindexes]
 
-            pages.sort(key=by_title)
-            children.sort(key=by_title)
+            _pagesort(pages)
+            _pagesort(children)
 
             for p in sources:
                 self.parse(p['src'], p['dest'], pages)
@@ -133,6 +131,7 @@ class Generator:
         theme_public = self.config.get_theme_public()
         src_public = os.path.join(theme_public, relpath)
         if os.path.exists(src_public):
+            print('Copying %s to %s' % (src_public, destdir))
             if not os.path.exists(destdir):
                 os.makedirs(destdir)
             shutil.copy(src_public, destdir)
@@ -144,6 +143,7 @@ class Generator:
         if reldir and dbase == 'index':
             themedir = os.path.dirname(src_public)
             if os.path.isdir(themedir):
+                print('Copying tree %s to %s' % (themedir, destdir))
                 if os.path.exists(destdir):
                     shutil.rmtree(destdir)
                 shutil.copytree(themedir, destdir)
@@ -172,14 +172,14 @@ class Generator:
                 childdirs.append(os.path.join(destdir, src, 'index.html'))
 
         pages = [TemplatePage(self, d) for d in dests]
-        pages.sort(key=lambda p: p.title)
+        _pagesort(pages)
 
         if dbase == 'index':
             print("Regenerating Index %s" % destination)
             if not os.path.exists(destdir):
                 os.makedirs(destdir)
             children = [TemplatePage(self, c) for c in childdirs]
-            children.sort(key=lambda p: p.title)
+            _pagesort(children)
             self.include_index(destination, pages, children)
             return
 
@@ -263,6 +263,8 @@ class Generator:
 
         return name.replace("_", " ").title()
 
+def _pagesort(pages):
+    pages.sort(key=lambda p: p.title)
 
 class TemplatePage:
     """
@@ -273,3 +275,4 @@ class TemplatePage:
         self.title = generator.title(destination)
         prefix = len(generator.config.outputdir)
         self.url = destination[prefix:].replace(os.path.sep, "/")
+
