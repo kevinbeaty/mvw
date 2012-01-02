@@ -12,44 +12,44 @@ class Config:
     Read by convention and from config.yml
     """
 
-    def __init__(self, mvw_root):
+    def __init__(self, root, defaults):
         """
         Initializes with mvw root (.mvw directory)
         """
 
-        mvw_root = os.path.normpath(mvw_root)
-
-        self.sourcedir = os.path.split(mvw_root)[0]
-        self.outputdir = os.path.join(mvw_root, 'site')
-        self.themedir = os.path.join(mvw_root, 'theme')
+        root = os.path.normpath(root)
 
         # Load config
-        default = os.path.join(mvw_root, 'config.yaml')
-        if os.path.isfile(default):
-            with codecs.open(default, encoding='utf-8') as src:
-                self.config = yaml.load(src)
-        else:
-            # No config is OK, we'll just use defaults
-            self.config = {}
+        default = os.path.join(root, 'config.yaml')
+
+        # Use default config if not exists
+        if not os.path.isfile(default):
+            default = os.path.join(defaults, 'config.yaml')
+
+        with codecs.open(default, encoding='utf-8') as src:
+            self.config = yaml.load(src)
+
+        # Load sourcedir with default same directory that contains .mvw
+        self.sourcedir = self.config.get('sourcedir', os.path.split(root)[0])
+
+        # Load outputdir with default .mvw/site
+        self.outputdir = self.config.get('outputdir', os.path.join(root, 'site'))
+
+        # Load themedir with default .mvw/theme
+        self.themedir = self.config.get('themedir', os.path.join(root, 'theme'))
+
+        # Load default theme if themedir does not exist
+        if not os.path.isdir(self.themedir):
+            self.themedir = os.path.join(defaults, 'theme')
 
         # Setup template environment
         template = os.path.join(self.themedir, 'template')
-        if os.path.exists(template):
-            self.environment = Environment(loader=FileSystemLoader(template))
-        else:
-            raise Exception(
-                """
-                Cannot find theme templates in %s.
-                This may have been caused by running mvw init with a
-                previous version that did not support custom themes.
 
-                To reset to default theme:
-                $ cd %s
-                $ rm -rf .mvw
-                $ mvw init
-                $ mvw generate
+        # Use default if template does not exist in theme
+        if not os.path.isdir(template):
+            template = os.path.join(defaults, 'theme', 'template')
 
-                """ % (template, self.sourcedir))
+        self.environment = Environment(loader=FileSystemLoader(template))
 
         # Add extensions to path if exists
         extensions = os.path.join(self.themedir, 'extensions')

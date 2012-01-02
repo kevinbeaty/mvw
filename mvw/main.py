@@ -53,13 +53,10 @@ def init(start):
     root = get_root(start)
     if root is None:
         root = os.path.join(start, '.mvw')
-
-        # Load defaults
-        moddir = os.path.dirname(__file__)
-        projdir = os.path.normpath(os.path.join(moddir, '..'))
-        defaults = os.path.join(projdir, 'defaults')
-
-        shutil.copytree(defaults, root)
+        os.mkdir(root)
+        defaults = get_defaults()
+        config = os.path.join(defaults, 'config.yaml')
+        shutil.copy(config, root)
     else:
         print("Cannot init within existing wiki: %s" % root)
         sys.exit(-3)
@@ -86,7 +83,7 @@ def create_generator(start):
         print("Run mvw init on the root directory of wiki")
         sys.exit(-4)
 
-    return Generator(Config(root))
+    return Generator(Config(root, get_defaults()))
 
 
 def get_root(path):
@@ -105,6 +102,12 @@ def get_root(path):
         return None
     else:
         return get_root(parent)
+
+
+def get_defaults():
+    moddir = os.path.dirname(__file__)
+    projdir = os.path.normpath(os.path.join(moddir, '..'))
+    return os.path.join(projdir, 'defaults')
 
 if __name__ == '__main__':
     run()
