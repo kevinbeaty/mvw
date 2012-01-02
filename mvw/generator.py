@@ -164,11 +164,12 @@ class Generator:
                 continue
 
             base, ext = os.path.splitext(os.path.basename(src))
+            srcpath = os.path.join(srcdir, src)
 
             if ext in source_exts:
-                sources.append(os.path.join(srcdir, src))
+                sources.append(srcpath)
                 dests.append(os.path.join(destdir, "%s%s" % (base, '.html')))
-            elif os.path.isdir(src):
+            elif os.path.isdir(srcpath):
                 childdirs.append(os.path.join(destdir, src, 'index.html'))
 
         pages = [TemplatePage(self, d) for d in dests]
