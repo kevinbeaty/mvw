@@ -1,5 +1,25 @@
+# Link text for site root when generating breadcrumb
 breadcrumb_home: Home
 
+# Directories are relative to mvw root (.mvw), but
+# can be absolute. Defaults are below. Uncomment
+# and set to customize.
+#sourcedir: ..
+#outputdir: site
+
+# Default theme will be used if commented. Uncomment
+# to install custom theme.
+#themedir: theme
+
+# Map of themes.  Can be selected using `theme: $name`
+# markdown metadata.  If no theme is selected, default
+# is assumed. 
+# `content template` refers to Jinja2 template in
+# ${themedir}/template
+# `markdown_extensions` can be listed per theme.
+# Custom markdown extensions can be placed in 
+# ${themedir}/extensions which is added to the 
+# python path. 
 themes:
     default:
         content_template: default.html

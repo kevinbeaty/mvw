@@ -16,8 +16,8 @@ class Config:
         if not root:
             root = os.path.join(os.getcwd(), '.mvw')
 
-        root = os.path.normpath(root)
-        defaults = os.path.normpath(defaults)
+        root = _expandpath(root)
+        defaults = _expandpath(defaults)
 
         # Load config
         default = os.path.join(root, 'config.yaml')
@@ -30,16 +30,16 @@ class Config:
             self.config = yaml.load(src)
 
         # Load sourcedir with default same directory that contains .mvw
-        self.sourcedir = self.config.get('sourcedir',
-                os.path.split(root)[0])
+        self.sourcedir = _expandpath(
+                self.config.get('sourcedir', '..'), root)
 
         # Load outputdir with default .mvw/site
-        self.outputdir = self.config.get('outputdir',
-                os.path.join(root, 'site'))
+        self.outputdir = _expandpath(
+                self.config.get('outputdir', 'site'), root)
 
         # Load themedir with default .mvw/theme
-        self.themedir = self.config.get('themedir',
-                os.path.join(root, 'theme'))
+        self.themedir = _expandpath(self.config.get(
+                'themedir', 'theme'), root)
 
         # Load default theme if themedir does not exist
         if not os.path.isdir(self.themedir):
@@ -51,13 +51,13 @@ class Config:
         # Use default if template does not exist in theme
         if not os.path.isdir(template):
             template = os.path.join(defaults, 'theme', 'template')
-
         self.environment = Environment(loader=FileSystemLoader(template))
 
-        # Add extensions to path if exists
+        # Add extensions to path
         extensions = os.path.join(self.themedir, 'extensions')
-        if os.path.isdir(extensions):
-            sys.path.append(extensions)
+        if not os.path.isdir(extensions):
+            template = os.path.join(defaults, 'theme', 'extensions')
+        sys.path.append(extensions)
 
     def get_breadcrumb_home(self):
         """
@@ -91,3 +91,14 @@ class Config:
     def _theme(self, theme, key, default):
         cfg = self.config.get('themes', {}).get(theme, {})
         return cfg.get(key, default)
+
+
+def _expandpath(path, root=None):
+    """ Fully expands path appending
+    root if provided and path is relative
+    """
+    path = os.path.normpath(os.path.normcase(
+                os.path.expandvars(os.path.expanduser(path))))
+    if root and not os.path.isabs(path):
+        path = os.path.join(root, path)
+    return os.path.abspath(path)
