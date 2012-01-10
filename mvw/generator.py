@@ -13,39 +13,23 @@ class Generator:
     def __init__(self, config):
         self.config = config
 
-    def run(self):
+    def generate(self):
         """
         Generates the entire site.
         Cleans the outputdir, includes the theme
         and generates the source into the outputdir
         """
+        config = self.config
+        self.generate_from(config.sourcedir)
+        self.generate_from(config.get_theme_public(), autoindex=False)
 
-        self.clean()
-        self.include_theme()
-        self.include_source()
-
-    def clean(self):
-        """
-        Cleans (rm -rf) the outputdir
-        """
-        outputdir = self.config.outputdir
-        if os.path.exists(outputdir):
-            shutil.rmtree(outputdir)
-
-    def include_theme(self):
-        """
-        Includes the theme in the outputdir
-        """
-        outputdir = self.config.outputdir
-        public = self.config.get_theme_public()
-        if os.path.exists(public):
-            shutil.copytree(public, outputdir)
-
-    def include_source(self):
+    def generate_from(self, sourcedir, autoindex=True):
         """
         Generates and includes the source into the outputdir
         """
-        sourcedir = self.config.sourcedir
+        if not os.path.exists(sourcedir):
+            return
+
         outputdir = self.config.outputdir
         prefix = len(sourcedir) + len(os.path.sep)
 
@@ -81,7 +65,7 @@ class Generator:
 
             # If index not generated as part of pages, generate
             # an index with empty content
-            if not os.path.exists(index):
+            if autoindex and not os.path.exists(index):
                 self.convert(None, index, pages, children)
 
     def resource_path(self, relpath):
@@ -100,7 +84,7 @@ class Generator:
         theme_public = self.config.get_theme_public()
         src_public = os.path.join(theme_public, relpath)
         if os.path.exists(src_public):
-            return src_public 
+            return src_public
 
         # If requesting index in theme public, return directory
         # Ignore requests for index at root since this will
@@ -108,7 +92,7 @@ class Generator:
         if reldir and not dext:
             themedir = os.path.dirname(src_public)
             if os.path.isdir(themedir):
-                return themedir 
+                return themedir
 
         # Get resources from source
         return os.path.join(self.config.sourcedir, relpath)
@@ -118,7 +102,7 @@ class Generator:
         Regenerate requested pages given a relative path.
 
         If requesting an html page, and a source file
-        exists, regenerates from source and returns 
+        exists, regenerates from source and returns
         content. Otherwise returns None
         """
 

@@ -47,8 +47,7 @@ def run():
 
 
 def init(start):
-    """
-    mvw init
+    """ mvw init
     Initializes the repository at the specified directory
     """
 
@@ -65,12 +64,12 @@ def init(start):
 
 
 def generate(start):
-    """
+    """ mvw generate
     Generates the site for the current wiki.
     Searches up the directory tree for a .mvw directory
     and generates the site into .mvw/site
     """
-    create_generator(start).run()
+    create_generator(start).generate()
 
 
 def serve(start):
