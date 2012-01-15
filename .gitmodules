@@ -1,0 +1,3 @@
+[submodule "doc/.mvw/site"]
+	path = doc/.mvw/site
+	url = git@github.com:simplectic/mvw.git
