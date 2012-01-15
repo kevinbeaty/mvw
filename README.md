@@ -9,8 +9,7 @@ Example and documentation at <http://simplectic.github.com/mvw>. The documentati
 1. Install
 
         # Install from github
-        $ pip install -e \
-        > git://github.com/simplectic/mvw.git#egg=MVW
+        $ pip install -e git://github.com/simplectic/mvw.git#egg=MVW
 
 2. Create
 
