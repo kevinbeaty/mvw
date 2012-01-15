@@ -12,6 +12,9 @@ class Generator:
 
     def __init__(self, config):
         self.config = config
+        # Site root only valid in generate
+        # everything else served from root
+        self.site_root = '/'
 
     def generate(self):
         """
@@ -20,6 +23,7 @@ class Generator:
         and generates the source into the outputdir
         """
         config = self.config
+        self.site_root = config.site_root
         self.generate_from(config.sourcedir)
         self.generate_from(config.theme_public, autoindex=False)
 
@@ -262,8 +266,9 @@ class TemplatePage:
 
     def __init__(self, generator, destination):
         self.title = generator.title(destination)
-        prefix = len(generator.config.outputdir)
-        self.url = destination[prefix:].replace(os.path.sep, "/")
+        prefix = len(generator.config.outputdir) + len(os.path.sep)
+        self.url = '%s%s' % (generator.site_root,
+            destination[prefix:].replace(os.path.sep, "/"))
 
     def __eq__(self, other):
         return self.url == other.url

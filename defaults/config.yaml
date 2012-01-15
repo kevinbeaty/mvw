@@ -1,6 +1,12 @@
 # Link text for site root when generating breadcrumb
 breadcrumb_home: Home
 
+# The site root to use to prepend to generated links
+# when generating the site.  This only applies to
+# `mvw generate`.  `mvw` (and `mvw serve`) will only
+# serve at site root of localhost:8000k
+#site_root: /
+
 # Directories are relative to mvw root (.mvw), but
 # can be absolute. Defaults are below. Uncomment
 # and set to customize.

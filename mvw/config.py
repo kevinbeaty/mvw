@@ -75,6 +75,13 @@ class Config:
 
         return os.path.join(self.themedir, 'public')
 
+    @property
+    def site_root(self):
+        """
+        Returns the site root to be used when generating URLs.
+        """
+        return self.config.get('site_root', '/')
+
     def get_content_template(self, theme):
         """
         The template to use for parsed content
