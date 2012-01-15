@@ -20,7 +20,7 @@ def run():
             %prog generate : Generates the static site
             """
     desc = """Minimal Viable Wiki
-            http://mvw.simplectic.com"""
+            http://simplectic.github.com/mvw"""
     version = "0.0.1"
 
     opts = OptionParser(usage=usage, description=desc, version=version)
