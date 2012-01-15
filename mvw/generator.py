@@ -21,7 +21,7 @@ class Generator:
         """
         config = self.config
         self.generate_from(config.sourcedir)
-        self.generate_from(config.get_theme_public(), autoindex=False)
+        self.generate_from(config.theme_public, autoindex=False)
 
     def generate_from(self, sourcedir, autoindex=True):
         """
@@ -81,7 +81,7 @@ class Generator:
         reldir = os.path.dirname(relpath)
 
         # Return files requested from theme public
-        theme_public = self.config.get_theme_public()
+        theme_public = self.config.theme_public
         src_public = os.path.join(theme_public, relpath)
         if os.path.exists(src_public):
             return src_public
@@ -202,7 +202,7 @@ class Generator:
         context['Meta'] = Meta
         context['meta'] = meta
 
-        template = self.config.get_content_template(source, theme=theme)
+        template = self.config.get_content_template(theme=theme)
         rendered = template.render(**context)
 
         # Write to destination if destination directory exists
@@ -241,7 +241,7 @@ class Generator:
         if(base == 'index.html'):
             dirname = os.path.dirname(path)
             if dirname in [self.config.outputdir, self.config.sourcedir]:
-                return self.config.get_breadcrumb_home()
+                return self.config.breadcrumb_home
             else:
                 name = os.path.basename(os.path.dirname(path))
         else:

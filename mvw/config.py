@@ -16,8 +16,8 @@ class Config:
         if not root:
             root = os.path.join(os.getcwd(), '.mvw')
 
-        root = _expandpath(root)
-        defaults = _expandpath(defaults)
+        root = self.expandpath(root)
+        defaults = self.expandpath(defaults)
 
         # Load config
         default = os.path.join(root, 'config.yaml')
@@ -30,15 +30,15 @@ class Config:
             self.config = yaml.load(src)
 
         # Load sourcedir with default same directory that contains .mvw
-        self.sourcedir = _expandpath(
+        self.sourcedir = self.expandpath(
                 self.config.get('sourcedir', '..'), root)
 
         # Load outputdir with default .mvw/site
-        self.outputdir = _expandpath(
+        self.outputdir = self.expandpath(
                 self.config.get('outputdir', 'site'), root)
 
         # Load themedir with default .mvw/theme
-        self.themedir = _expandpath(self.config.get(
+        self.themedir = self.expandpath(self.config.get(
                 'themedir', 'theme'), root)
 
         # Load default theme if themedir does not exist
@@ -59,21 +59,23 @@ class Config:
             template = os.path.join(defaults, 'theme', 'extensions')
         sys.path.append(extensions)
 
-    def get_breadcrumb_home(self):
+    @property
+    def breadcrumb_home(self):
         """
         The text for the breadcrumb at the site root
         """
 
         return self.config.get('breadcrumb_home', 'Home')
 
-    def get_theme_public(self):
+    @property
+    def theme_public(self):
         """
         The directory containing all public theme assets (css, images, etc)
         """
 
         return os.path.join(self.themedir, 'public')
 
-    def get_content_template(self, source, theme):
+    def get_content_template(self, theme):
         """
         The template to use for parsed content
         """
@@ -92,13 +94,15 @@ class Config:
         cfg = self.config.get('themes', {}).get(theme, {})
         return cfg.get(key, default)
 
-
-def _expandpath(path, root=None):
-    """ Fully expands path appending
-    root if provided and path is relative
-    """
-    path = os.path.normpath(os.path.normcase(
-                os.path.expandvars(os.path.expanduser(path))))
-    if root and not os.path.isabs(path):
-        path = os.path.join(root, path)
-    return os.path.abspath(path)
+    @staticmethod
+    def expandpath(path, root=None):
+        """ Fully expands path appending
+        root if provided and path is relative
+        """
+        path = os.path.normpath(
+                os.path.normcase(
+                    os.path.expandvars(
+                        os.path.expanduser(path))))
+        if root and not os.path.isabs(path):
+            path = os.path.join(root, path)
+        return os.path.abspath(path)
