@@ -2,7 +2,7 @@
 
 MVW is a minimal personal wiki engine.
 
-Example and documentation at <http://mvw.simplectic.com>. The documentation source is included in the doc directory of this repository.
+Example and documentation at <http://simplectic.github.com/mvw>. The documentation source is included in the doc directory of this repository.
 
 ## Quick start
     
