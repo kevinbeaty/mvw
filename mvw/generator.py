@@ -71,12 +71,12 @@ class Generator:
 
             # Generate all pages from source
             for p in sources:
-                self.convert(p['src'], p['dest'], pages, children)
+                self.convert(p['src'], p['dest'], pages, children, True)
 
             # If index not generated as part of pages, generate
             # an index with empty content
             if autoindex and not os.path.exists(index):
-                self.convert(None, index, pages, children)
+                self.convert(None, index, pages, children, True)
 
     def resource_path(self, relpath):
         """
@@ -172,7 +172,7 @@ class Generator:
 
         return None
 
-    def convert(self, source, destination, pages, children):
+    def convert(self, source, destination, pages, children, save=False):
         """
         Converts the source file and saves to the destination
         """
@@ -215,8 +215,8 @@ class Generator:
         template = self.config.get_content_template(theme=theme)
         rendered = template.render(**context)
 
-        # Write to destination if destination directory exists
-        if os.path.isdir(os.path.dirname(destination)):
+        # Write to destination if save requested
+        if save:
             with codecs.open(destination, mode='w', encoding='utf-8') as dst:
                 dst.write(rendered)
 
