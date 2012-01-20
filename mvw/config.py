@@ -47,9 +47,8 @@ class Config:
             self.themedir = os.path.join(defaults, 'theme')
 
         # Setup template environment
-        template = os.path.join(self.themedir, 'template')
-
         # Use default if template does not exist in theme
+        template = os.path.join(self.themedir, 'template')
         if not os.path.isdir(template):
             template = os.path.join(defaults, 'theme', 'template')
         self.environment = Environment(loader=FileSystemLoader(template))
@@ -57,8 +56,14 @@ class Config:
         # Add extensions to path
         extensions = os.path.join(self.themedir, 'extensions')
         if not os.path.isdir(extensions):
-            template = os.path.join(defaults, 'theme', 'extensions')
+            extensions = os.path.join(defaults, 'theme', 'extensions')
         sys.path.append(extensions)
+
+        # Load theme public, using default if does not exist
+        themepublic = os.path.join(self.themedir, 'public')
+        if not os.path.isdir(themepublic):
+            themepublic = os.path.join(defaults, 'theme', 'public')
+        self.theme_public = themepublic
 
     @property
     def breadcrumb_home(self):
@@ -67,14 +72,6 @@ class Config:
         """
 
         return self.config.get('breadcrumb_home', 'Home')
-
-    @property
-    def theme_public(self):
-        """
-        The directory containing all public theme assets (css, images, etc)
-        """
-
-        return os.path.join(self.themedir, 'public')
 
     @property
     def site_root(self):
