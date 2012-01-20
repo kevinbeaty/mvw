@@ -18,6 +18,8 @@ def run():
             %prog [serve] : Serve the wiki locally
             %prog init : Initializes MVW at the current directory
             %prog generate : Generates the static site
+            %prog theme : Copies the default theme into configured
+                theme directory (default .mvw/theme)
             """
     desc = """Minimal Viable Wiki
             http://simplectic.com/mvw"""
@@ -41,6 +43,8 @@ def run():
         generate(start)
     elif command == "serve":
         serve(start)
+    elif command == "theme":
+        theme(start)
     else:
         opts.print_usage()
         sys.exit(-2)
@@ -81,6 +85,28 @@ def serve(start):
 def create_generator(start):
     root = get_root(start)
     return Generator(Config(root, get_defaults()))
+
+
+def theme(start):
+    """ mvw theme
+    Copies the default theme into the configured directory.
+    """
+
+    root = get_root(start)
+    if root is None:
+        init(start)
+        root = get_root(start)
+
+    config = Config(root, get_defaults())
+    themedir = config.themedir
+    configthemedir = config.configthemedir
+
+    if themedir != configthemedir and \
+        not os.path.exists(configthemedir):
+        shutil.copytree(themedir, configthemedir)
+    else:
+        print("Will not overwrite existing themedir %s" % configthemedir)
+        sys.exit(-3)
 
 
 def get_root(path):

@@ -40,6 +40,7 @@ class Config:
         # Load themedir with default .mvw/theme
         self.themedir = self.expandpath(self.config.get(
                 'themedir', 'theme'), root)
+        self.configthemedir = self.themedir
 
         # Load default theme if themedir does not exist
         if not os.path.isdir(self.themedir):
