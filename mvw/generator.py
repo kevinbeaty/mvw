@@ -64,6 +64,12 @@ class Generator:
             pages = self.pages(p['dest'] for p in sources)
             children = self.pages(cindexes)
 
+            # Remove previously generated index file to ensure it will
+            # be regenerated whether it is a page or not
+            if autoindex and os.path.exists(index):
+                os.remove(index)
+
+            # Generate all pages from source
             for p in sources:
                 self.convert(p['src'], p['dest'], pages, children)
 
