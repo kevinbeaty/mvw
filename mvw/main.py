@@ -129,8 +129,7 @@ def get_root(path):
 
 def get_defaults():
     moddir = os.path.dirname(__file__)
-    projdir = os.path.normpath(os.path.join(moddir, '..'))
-    return os.path.join(projdir, 'defaults')
+    return os.path.join(moddir, 'defaults')
 
 if __name__ == '__main__':
     run()
