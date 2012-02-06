@@ -75,5 +75,5 @@ MVW is a minimal personal wiki engine.
 [3]: http://www.doughellmann.com/docs/virtualenvwrapper/command_ref.html#project-directory-management
 [4]: http://daringfireball.net/projects/markdown/
 [5]: http://www.freewisdom.org/projects/python-markdown
-[6]: /examples/code.html
-[7]: /site_generation.html
+[6]: examples/code.html
+[7]: site_generation.html
