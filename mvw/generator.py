@@ -233,11 +233,13 @@ class Generator:
         dest = destination[:prefix]
 
         pages = []
-        pages.append(TemplatePage(self, os.path.join(outputdir, 'index.html')))
+        pages.append(TemplatePage(self,
+            os.path.join(outputdir, 'index.html')))
         for p in destdir.split(os.path.sep):
             if len(p) > 0:
                 dest = os.path.join(dest, p)
-                pages.append(TemplatePage(self, dest))
+                pages.append(TemplatePage(self,
+                    os.path.join(dest, 'index.html')))
 
         return pages
 
