@@ -1,5 +1,3 @@
-# MVW
-
 MVW is a minimal personal wiki engine.
 
 ## Quick start
