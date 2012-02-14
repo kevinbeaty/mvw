@@ -31,8 +31,3 @@ themes:
         content_template: default.html
         markdown_extensions:
             - codehilite(css_class=syntax,guess_lang=False)
-
-    mathjax:
-        content_template: mathjax.html
-        markdown_extensions:
-            - mathjax
