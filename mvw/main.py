@@ -7,8 +7,6 @@ from optparse import OptionParser
 import os
 import sys
 import shutil
-import yaml
-import codecs
 
 
 def run():
@@ -83,20 +81,13 @@ def serve(start):
 
 
 def config(start):
-    # Load config from yaml if exists
-    config = {}
     root = get_root(start)
 
-    # Load config.yaml from root if exists
+    # If no mvw root, use working directory
     if root is None:
         root = os.path.join(start, '.mvw')
-    else:
-        configfile = os.path.join(root, 'config.yaml')
-        if os.path.isfile(configfile):
-            with codecs.open(configfile, encoding='utf-8') as src:
-                config = yaml.load(src) or {}
 
-    return Config(config, root, get_defaults())
+    return Config().load(root, get_defaults())
 
 
 def theme(start):
