@@ -4,9 +4,10 @@ from mvw.config import Config
 from mvw.generator import Generator
 from mvw.server import Server
 from optparse import OptionParser
+import imp
 import os
-import sys
 import shutil
+import sys
 
 
 def run():
@@ -58,7 +59,7 @@ def init(start):
         root = os.path.join(start, '.mvw')
         os.mkdir(root)
         defaults = get_defaults()
-        config = os.path.join(defaults, 'config.yaml')
+        config = os.path.join(defaults, 'mvwconfig.py')
         shutil.copy(config, root)
     else:
         print("Cannot init within existing wiki: %s" % root)
@@ -84,10 +85,19 @@ def config(start):
     root = get_root(start)
 
     # If no mvw root, use working directory
+    config = None
     if root is None:
         root = os.path.join(start, '.mvw')
+    else:
+        mvwconfigpath = Config.expandpath('mvwconfig.py', root)
+        if os.path.isfile(mvwconfigpath):
+            mvwconfig = imp.load_source('mvwconfig', mvwconfigpath)
+            config = mvwconfig.config
 
-    return Config().load(root, get_defaults())
+    if config is None:
+        config = Config()
+
+    return config.load(root, get_defaults())
 
 
 def theme(start):

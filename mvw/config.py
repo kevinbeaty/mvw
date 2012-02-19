@@ -18,6 +18,13 @@ class Config:
         self.themes = {}
         self.breadcrumb_home = None
 
+    def theme(self, theme, content_template=None, markdown_extensions=None):
+        self.themes = self.themes or {}
+        self.themes[theme] = {
+                'content_template': content_template,
+                'markdown_extensions': markdown_extensions }
+        return self
+
     def load(self, root, defaults):
 
         root = self.expandpath(root)
@@ -80,7 +87,7 @@ class Config:
     def _theme(self, theme, key, default):
         themes = self.themes or {}
         cfg = themes.get(theme, None) or {}
-        return cfg.get(key, default)
+        return cfg.get(key, None) or default
 
     def title(self, path):
         """ Generates a title for the given path.  """
