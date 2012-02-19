@@ -46,18 +46,21 @@ class Config:
         if not os.path.isdir(self.themedir):
             self.themedir = os.path.join(defaults, 'theme')
 
+        # Add extensions to path
+        extensions = os.path.join(self.themedir, 'extensions')
+        if os.path.isdir(extensions):
+            sys.path.append(extensions)
+
+        jinja2_extensions = self.config.get('jinja2_extensions', [])
+
         # Setup template environment
         # Use default if template does not exist in theme
         template = os.path.join(self.themedir, 'template')
         if not os.path.isdir(template):
             template = os.path.join(defaults, 'theme', 'template')
-        self.environment = Environment(loader=FileSystemLoader(template))
-
-        # Add extensions to path
-        extensions = os.path.join(self.themedir, 'extensions')
-        if not os.path.isdir(extensions):
-            extensions = os.path.join(defaults, 'theme', 'extensions')
-        sys.path.append(extensions)
+        self.environment = Environment(
+                loader=FileSystemLoader(template),
+                extensions=jinja2_extensions)
 
         # Load theme public, using default if does not exist
         themepublic = os.path.join(self.themedir, 'public')

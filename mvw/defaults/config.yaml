@@ -17,15 +17,24 @@ breadcrumb_home: Home
 # to install custom theme.
 #themedir: theme
 
+# List of Jinja2 Extensions to use for all templates
+# configured in themes below.
+# Can be used to add custom  Jinja2 extensions,
+# filters, tests, etc by adding the extension to
+# ${themedir}/extensions which is added to the
+# python path if it exists.
+#jinja2_extensions:
+#    - myproject.CustomExtension
+
 # Map of themes.  Can be selected using `theme: $name`
 # markdown metadata.  If no theme is selected, default
 # is assumed. 
 # `content template` refers to Jinja2 template in
 # ${themedir}/template
 # `markdown_extensions` can be listed per theme.
-# Custom markdown extensions can be placed in 
-# ${themedir}/extensions which is added to the 
-# python path. 
+# Custom markdown extensions can be placed in
+# ${themedir}/extensions which is added to the
+# python path if it exists.
 themes:
     default:
         content_template: default.html
