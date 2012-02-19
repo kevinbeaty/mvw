@@ -1,5 +1,6 @@
 # Link text for site root when generating breadcrumb
-breadcrumb_home: Home
+# Uses title generated from sourcedir name if not set
+#breadcrumb_home: Home
 
 # The site root to use to prepend to generated links
 # when generating the site.  This only applies to

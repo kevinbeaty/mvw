@@ -179,7 +179,7 @@ class Generator:
 
         breadcrumb = self.breadcrumb(destination)
         pages = [p for p in pages if p not in breadcrumb]
-        context = dict(title=self.title(destination),
+        context = dict(title=self.config.title(destination),
                        breadcrumb=breadcrumb,
                        pages=pages,
                        children=children)
@@ -243,24 +243,6 @@ class Generator:
 
         return pages
 
-    def title(self, path):
-        """
-        Generates a title for the given path.
-        """
-
-        base = os.path.basename(path)
-
-        if(base == 'index.html'):
-            dirname = os.path.dirname(path)
-            if dirname in [self.config.outputdir, self.config.sourcedir]:
-                return self.config.breadcrumb_home
-            else:
-                name = os.path.basename(os.path.dirname(path))
-        else:
-            name, ext = os.path.splitext(base)
-
-        return name.replace("_", " ").title()
-
     def pages(self, dests):
         pages = [TemplatePage(self, d) for d in dests]
         pages.sort(key=lambda p: p.title)
@@ -273,7 +255,7 @@ class TemplatePage:
     """
 
     def __init__(self, generator, destination):
-        self.title = generator.title(destination)
+        self.title = generator.config.title(destination)
         prefix = len(generator.config.outputdir) + len(os.path.sep)
         self.url = '%s%s' % (generator.site_root,
             destination[prefix:].replace(os.path.sep, "/"))

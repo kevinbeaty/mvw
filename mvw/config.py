@@ -68,13 +68,10 @@ class Config:
             themepublic = os.path.join(defaults, 'theme', 'public')
         self.theme_public = themepublic
 
-    @property
-    def breadcrumb_home(self):
-        """
-        The text for the breadcrumb at the site root
-        """
+        # Set breadcrumb home, default sourcedir name
+        self.breadcrumb_home = self.config.get('breadcrumb_home',
+                self.title(self.sourcedir))
 
-        return self.config.get('breadcrumb_home', 'Home')
 
     @property
     def site_root(self):
@@ -97,6 +94,24 @@ class Config:
         """
         exts = self._theme(theme, 'markdown_extensions', [])
         return filter(None, exts)  # Removes empty lines
+
+    def title(self, path):
+        """
+        Generates a title for the given path.
+        """
+
+        base = os.path.basename(path)
+
+        if(base == 'index.html'):
+            dirname = os.path.dirname(path)
+            if dirname in [self.outputdir, self.sourcedir]:
+                return self.breadcrumb_home
+            else:
+                name = os.path.basename(os.path.dirname(path))
+        else:
+            name, ext = os.path.splitext(base)
+
+        return name.replace("_", " ").title()
 
     def _theme(self, theme, key, default):
         cfg = self.config.get('themes', {}).get(theme, {})
