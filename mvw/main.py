@@ -18,7 +18,9 @@ def run():
             %prog init : Initializes MVW at the current directory
             %prog generate : Generates the static site
             %prog theme : Copies the default theme into configured
-                theme directory (default .mvw/theme)
+                theme directory (default .mvw/theme) for customization
+            %prog config : Copies the sample mvwconfig.py into mvw root
+                for customization.
             """
     desc = """Minimal Viable Wiki
             http://simplectic.com/mvw"""
@@ -44,6 +46,8 @@ def run():
         serve(start)
     elif command == "theme":
         theme(start)
+    elif command == "config":
+        config_init(start)
     else:
         opts.print_usage()
         sys.exit(-2)
@@ -58,11 +62,27 @@ def init(start):
     if root is None:
         root = os.path.join(start, '.mvw')
         os.mkdir(root)
-        defaults = get_defaults()
-        config = os.path.join(defaults, 'mvwconfig.py')
-        shutil.copy(config, root)
     else:
         print("Cannot init within existing wiki: %s" % root)
+        sys.exit(-3)
+
+
+def config_init(start):
+    """ mvw config
+    Copies the sample mvwconfig.py into mvw root
+    """
+
+    root = get_root(start)
+    if root is None:
+        init(start)
+
+    defaults = get_defaults()
+    config = os.path.join(defaults, 'mvwconfig.py')
+    mvwconfig = os.path.join(root, 'mvwconfig.py')
+    if not os.path.exists(mvwconfig):
+        shutil.copy(config, root)
+    else:
+        print("Will not overwrite existing mvwconfig.py %s" % mvwconfig)
         sys.exit(-3)
 
 
