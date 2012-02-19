@@ -22,7 +22,6 @@ setup(
         'Jinja2',
         'Markdown',
         'Pygments',
-        'PyYAML'
     ],
     entry_points={
       'console_scripts': [
