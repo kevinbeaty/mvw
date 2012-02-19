@@ -14,7 +14,6 @@ class Config:
         self.outputdir = 'site'
         self.themedir = 'theme'
         self.site_root = '/'
-        self.jinja2_extensions = []
         self.themes = {}
         self.breadcrumb_home = None
 
@@ -24,6 +23,9 @@ class Config:
                 'content_template': content_template,
                 'markdown_extensions': markdown_extensions }
         return self
+
+    def jinja2_environment(self, loader):
+        return Environment(loader=loader)
 
     def load(self, root, defaults):
 
@@ -54,9 +56,7 @@ class Config:
         template = os.path.join(self.themedir, 'template')
         if not os.path.isdir(template):
             template = os.path.join(defaults, 'theme', 'template')
-        self.environment = Environment(
-                loader=FileSystemLoader(template),
-                extensions=self.jinja2_extensions)
+        self.environment = self.jinja2_environment(FileSystemLoader(template))
 
         # Load theme public, using default if does not exist
         themepublic = os.path.join(self.themedir, 'public')
