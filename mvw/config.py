@@ -72,7 +72,6 @@ class Config:
         self.breadcrumb_home = self.config.get('breadcrumb_home',
                 self.title(self.sourcedir))
 
-
     @property
     def site_root(self):
         """
@@ -84,7 +83,7 @@ class Config:
         """
         The template to use for parsed content
         """
-        template = self._theme(theme, 'content_template', 'default.html')
+        template = self._theme(theme, 'content_template', '%s.html' % theme)
 
         return self.environment.get_template(template)
 
@@ -92,7 +91,8 @@ class Config:
         """
         List of Python Markdown extensions
         """
-        exts = self._theme(theme, 'markdown_extensions', [])
+        exts = self._theme(theme, 'markdown_extensions', [
+            'codehilite(css_class=syntax,guess_lang=False)'])
         return filter(None, exts)  # Removes empty lines
 
     def title(self, path):
@@ -114,7 +114,14 @@ class Config:
         return name.replace("_", " ").title()
 
     def _theme(self, theme, key, default):
-        cfg = self.config.get('themes', {}).get(theme, {})
+        themes = self.config.get('themes', None)
+        if not themes:
+            return default
+
+        cfg = themes.get(theme, {})
+        if not cfg:
+            return default
+
         return cfg.get(key, default)
 
     @staticmethod

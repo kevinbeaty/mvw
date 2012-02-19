@@ -36,8 +36,8 @@
 # Custom markdown extensions can be placed in
 # ${themedir}/extensions which is added to the
 # python path if it exists.
-themes:
-    default:
-        content_template: default.html
-        markdown_extensions:
-            - codehilite(css_class=syntax,guess_lang=False)
+#themes:
+#   default:
+#       content_template: default.html
+#        markdown_extensions:
+#            - codehilite(css_class=syntax,guess_lang=False)
