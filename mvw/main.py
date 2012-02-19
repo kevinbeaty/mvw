@@ -7,12 +7,12 @@ from optparse import OptionParser
 import os
 import sys
 import shutil
+import yaml
+import codecs
 
 
 def run():
-    """
-    Entry Point for MVW
-    """
+    """ Entry Point for MVW """
 
     usage = """
             %prog [serve] : Serve the wiki locally
@@ -73,18 +73,30 @@ def generate(start):
     Searches up the directory tree for a .mvw directory
     and generates the site into .mvw/site
     """
-    create_generator(start).generate()
+    Generator(config(start)).generate()
 
 
 def serve(start):
-    generator = create_generator(start)
+    generator = Generator(config(start))
     server = Server(generator, '127.0.0.1', 8000)
     server.serve_forever()
 
 
-def create_generator(start):
+def config(start):
+    # Load config from yaml if exists
+    config = {}
     root = get_root(start)
-    return Generator(Config(root, get_defaults()))
+
+    # Load config.yaml from root if exists
+    if root is None:
+        root = os.path.join(start, '.mvw')
+    else:
+        configfile = os.path.join(root, 'config.yaml')
+        if os.path.isfile(configfile):
+            with codecs.open(configfile, encoding='utf-8') as src:
+                config = yaml.load(src) or {}
+
+    return Config(config, root, get_defaults())
 
 
 def theme(start):
@@ -95,11 +107,10 @@ def theme(start):
     root = get_root(start)
     if root is None:
         init(start)
-        root = get_root(start)
 
-    config = Config(root, get_defaults())
-    themedir = config.themedir
-    configthemedir = config.configthemedir
+    conf = config(start)
+    themedir = conf.themedir
+    configthemedir = conf.configthemedir
 
     if themedir != configthemedir and \
         not os.path.exists(configthemedir):
@@ -110,11 +121,9 @@ def theme(start):
 
 
 def get_root(path):
-    """
-    Finds the wiki root.
+    """ Finds the wiki root.
     Looks for a .mvw directory up the tree
-    Returns the path to the root or None if not found
-    """
+    Returns the path to the root or None if not found """
 
     root = os.path.join(path, '.mvw')
     if os.path.isdir(root):
