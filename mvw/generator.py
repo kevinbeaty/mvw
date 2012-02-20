@@ -177,7 +177,7 @@ class Generator:
         Converts the source file and saves to the destination
         """
 
-        breadcrumb = self.breadcrumb(destination)
+        breadcrumb = self.config.breadcrumb(self.site_root, destination)
         pages = [p for p in pages if p not in breadcrumb]
         context = dict(title=self.config.title(destination),
                        breadcrumb=breadcrumb,
@@ -222,46 +222,9 @@ class Generator:
 
         return rendered
 
-    def breadcrumb(self, destination):
-        """
-        Generates a breadcrumb for the specified destination file
-        """
-
-        outputdir = self.config.outputdir
-        prefix = len(outputdir) + len(os.path.sep)
-        destdir = os.path.dirname(destination[prefix:])
-        dest = destination[:prefix]
-
-        pages = []
-        pages.append(TemplatePage(self,
-            os.path.join(outputdir, 'index.html')))
-        for p in destdir.split(os.path.sep):
-            if len(p) > 0:
-                dest = os.path.join(dest, p)
-                pages.append(TemplatePage(self,
-                    os.path.join(dest, 'index.html')))
-
-        return pages
-
     def pages(self, dests):
-        pages = [TemplatePage(self, d) for d in dests]
+        config = self.config
+        site_root = self.site_root
+        pages = [config.page(site_root, d) for d in dests]
         pages.sort(key=lambda p: p.title)
         return pages
-
-
-class TemplatePage:
-    """
-    Encapsulates data for a page to include in the template
-    """
-
-    def __init__(self, generator, destination):
-        self.title = generator.config.title(destination)
-        prefix = len(generator.config.outputdir) + len(os.path.sep)
-        self.url = '%s%s' % (generator.site_root,
-            destination[prefix:].replace(os.path.sep, "/"))
-
-    def __eq__(self, other):
-        return self.url == other.url
-
-    def __ne__(self, other):
-        return self.url != other.url

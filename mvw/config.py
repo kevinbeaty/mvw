@@ -16,13 +16,13 @@ class Config:
         self.site_root = '/'
         self.themes = {}
         self.breadcrumb_home = None
-        self.port=8000
+        self.port = 8000
 
     def theme(self, theme, content_template=None, markdown_extensions=None):
         self.themes = self.themes or {}
         self.themes[theme] = {
                 'content_template': content_template,
-                'markdown_extensions': markdown_extensions }
+                'markdown_extensions': markdown_extensions}
         return self
 
     def jinja2_environment(self, loader):
@@ -118,3 +118,45 @@ class Config:
         if root and not os.path.isabs(path):
             path = os.path.join(root, path)
         return os.path.abspath(path)
+
+    def breadcrumb(self, site_root, destination):
+        """
+        Generates a breadcrumb for the specified destination file
+        """
+
+        outputdir = self.outputdir
+        prefix = len(outputdir) + len(os.path.sep)
+        destdir = os.path.dirname(destination[prefix:])
+        dest = destination[:prefix]
+
+        pages = []
+        pages.append(self.page(site_root,
+            os.path.join(outputdir, 'index.html')))
+        for p in destdir.split(os.path.sep):
+            if len(p) > 0:
+                dest = os.path.join(dest, p)
+                pages.append(self.page(site_root,
+                    os.path.join(dest, 'index.html')))
+
+        return pages
+
+    def page(self, site_root, dest):
+        return TemplatePage(self, site_root, dest)
+
+
+class TemplatePage:
+    """
+    Encapsulates data for a page to include in the template
+    """
+
+    def __init__(self, config, site_root, destination):
+        self.title = config.title(destination)
+        prefix = len(config.outputdir) + len(os.path.sep)
+        self.url = '%s%s' % (site_root,
+            destination[prefix:].replace(os.path.sep, "/"))
+
+    def __eq__(self, other):
+        return self.url == other.url
+
+    def __ne__(self, other):
+        return self.url != other.url
