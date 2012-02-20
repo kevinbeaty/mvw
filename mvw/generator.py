@@ -167,8 +167,11 @@ class Generator:
 
     def convert(self, source, destination, pages, children, save=False):
 
-        rendered = self.config.convert(source, destination,
-                self.site_root, pages, children)
+        config = self.config
+        site_root = self.site_root
+        context = config.template_context(source, destination,
+                site_root, pages, children)
+        rendered = config.convert(source, destination, site_root, **context)
 
         if save:
             with codecs.open(destination, mode='w', encoding='utf-8') as dst:
@@ -179,6 +182,4 @@ class Generator:
     def pages(self, dests):
         config = self.config
         site_root = self.site_root
-        pages = [config.page(site_root, d) for d in dests]
-        pages.sort(key=lambda p: p.title)
-        return pages
+        return config.pages(site_root, dests)

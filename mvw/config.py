@@ -53,32 +53,6 @@ class Config:
 
         return name.replace("_", " ").title()
 
-    def template_environment(self, templatedir):
-        """ Creates the template environment to load themes
-        from the themedir. The environment is stored in
-        self.environment and is passed to get_content_template.
-        Sets up a Jinja2 environment by default."""
-
-        from jinja2 import Environment, FileSystemLoader
-        return Environment(loader=FileSystemLoader(templatedir))
-
-    def get_content_template(self, environment, theme):
-        """ The template to use for parsed content.
-        Default implementation attempts to load content_template
-        using theme_get with default value ${theme}.html
-        Loads template using environment.get_template (as Jinja2)."""
-
-        template = self.theme_get(theme, 'content_template', '%s.html' % theme)
-
-        return environment.get_template(template)
-
-    def get_markdown_extensions(self, theme):
-        """ List of Python Markdown extensions """
-
-        exts = self.theme_get(theme, 'markdown_extensions', [
-            'codehilite(css_class=syntax,guess_lang=False)'])
-        return filter(None, exts)  # Removes empty lines
-
     def breadcrumb(self, site_root, destination):
         """ Generates a breadcrumb for the specified destination file """
 
@@ -102,6 +76,54 @@ class Config:
         """ Creates a page passed to template context for destination.
         Page must contain a title attribute which is used for sorting."""
         return TemplatePage(self, site_root, destination)
+
+    def pages(self, site_root, dests):
+        pages = [self.page(site_root, d) for d in dests]
+        pages.sort(key=lambda p: p.title)
+        return pages
+
+    def template_environment(self, templatedir):
+        """ Creates the template environment to load themes
+        from the themedir. The environment is stored in
+        self.environment and is passed to get_content_template.
+        Sets up a Jinja2 environment by default."""
+
+        from jinja2 import Environment, FileSystemLoader
+        return Environment(loader=FileSystemLoader(templatedir))
+
+    def content_template(self, environment, theme):
+        """ The template to use for parsed content.
+        Default implementation attempts to load content_template
+        using theme_get with default value ${theme}.html
+        Loads template using environment.get_template (as Jinja2)."""
+
+        template = self.theme_get(theme, 'content_template', '%s.html' % theme)
+
+        return environment.get_template(template)
+
+    def template_context(self, source, dest, site_root, pages, children):
+
+        breadcrumb = self.breadcrumb(site_root, dest)
+        pages = [p for p in pages if p not in breadcrumb]
+
+        context = dict(title=self.title(dest),
+                       breadcrumb=breadcrumb,
+                       pages=pages,
+                       children=children)
+        return context
+
+    def render_template(self, environment, theme, content, **context):
+        template = self.content_template(self.environment, theme)
+        context['content'] = content
+        rendered = template.render(context)
+        return rendered
+
+    def get_markdown_extensions(self, theme):
+        """ List of Python Markdown extensions """
+
+        exts = self.theme_get(theme, 'markdown_extensions', [
+            'codehilite(css_class=syntax,guess_lang=False)'])
+        return filter(None, exts)  # Removes empty lines
 
     def load(self, root, defaults):
 
@@ -159,15 +181,8 @@ class Config:
             path = os.path.join(root, path)
         return os.path.abspath(path)
 
-    def convert(self, source, destination, site_root, pages, children):
+    def convert(self, source, destination, site_root, **context):
         """ Converts the source file and saves to the destination """
-
-        breadcrumb = self.breadcrumb(site_root, destination)
-        pages = [p for p in pages if p not in breadcrumb]
-        context = dict(title=self.title(destination),
-                       breadcrumb=breadcrumb,
-                       pages=pages,
-                       children=children)
 
         content = ""
         theme = 'default'
@@ -193,14 +208,11 @@ class Config:
 
             content = md.convert(''.join(lines))
 
-        context['content'] = content
         context['Meta'] = Meta
         context['meta'] = meta
 
-        template = self.get_content_template(self.environment, theme)
-        rendered = template.render(**context)
-
-        return rendered
+        environment = self.environment
+        return self.render_template(environment, theme, content, **context)
 
 
 class TemplatePage:
