@@ -65,7 +65,7 @@ config = Config()
 #def custom_title(title):
 #    return custom_titles.get(title.lower(), title)
 #class CustomConfig(Config):
-#    def jinja2_environment(self, loader):
+#    def template_environment(self, loader):
 #        env = Environment(loader=loader)
 #        env.filters['custom_title'] = custom_title
 #        return env
