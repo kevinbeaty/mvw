@@ -60,13 +60,13 @@ config = Config()
 # filters, extensions, tests, etc.
 # Custom extensions can be added to ${themedir}/extensions
 # which is added to python path if it exists.
-#from jinja2 import Environment
 #custom_titles = { 'mvw': 'MVW', 'faq': 'FAQ' }
 #def custom_title(title):
 #    return custom_titles.get(title.lower(), title)
 #class CustomConfig(Config):
-#    def template_environment(self, loader):
-#        env = Environment(loader=loader)
+#    def template_environment(self, templatedir):
+#        from jinja2 import Environment, FileSystemLoader
+#        env = Environment(loader=FileSystemLoader(templatedir))
 #        env.filters['custom_title'] = custom_title
 #        return env
 #config = CustomConfig()
