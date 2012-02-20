@@ -14,8 +14,15 @@ config = Config()
 # The site root to use to prepend to generated links
 # when generating the site.  This only applies to
 # `mvw generate`.  `mvw` (and `mvw serve`) will only
-# serve at site root of localhost:8000
+# serve at site root of localhost:8000 (the port can
+# be configured below).
 #config.site_root = '/'
+
+# Server port to use with `mvw serve`. Note that
+# `mvw serve` is only intended to be run locally
+# and will always run on localhost. Generate and
+# serve a static site to serve elsewhere.
+#config.port=8000
 
 # Directories are relative to mvw root (.mvw), but
 # can be absolute.
@@ -63,4 +70,13 @@ config = Config()
 #        env.filters['custom_title'] = custom_title
 #        return env
 #config = CustomConfig()
+# ... further customization with attributes above
+
+# While the above illustrates customizing the Jinja2
+# environment, the same effect can be achieved without
+# a filter by overridding title in CustomConfig
+#class CustomConfig(Config):
+#    def title(self, path):
+#        title = Config.title(self, path)
+#        return custom_titles.get(title.lower(), title)
 # ... further customization with attributes above

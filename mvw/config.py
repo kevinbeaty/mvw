@@ -16,6 +16,7 @@ class Config:
         self.site_root = '/'
         self.themes = {}
         self.breadcrumb_home = None
+        self.port=8000
 
     def theme(self, theme, content_template=None, markdown_extensions=None):
         self.themes = self.themes or {}

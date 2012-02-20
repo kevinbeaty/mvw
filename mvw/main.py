@@ -47,7 +47,7 @@ def run():
     elif command == "theme":
         theme(start)
     elif command == "config":
-        config_init(start)
+        config(start)
     else:
         opts.print_usage()
         sys.exit(-2)
@@ -65,16 +65,17 @@ def init(start):
     else:
         print("Cannot init within existing wiki: %s" % root)
         sys.exit(-3)
+    return root
 
 
-def config_init(start):
+def config(start):
     """ mvw config
     Copies the sample mvwconfig.py into mvw root
     """
 
     root = get_root(start)
     if root is None:
-        init(start)
+        root = init(start)
 
     defaults = get_defaults()
     config = os.path.join(defaults, 'mvwconfig.py')
@@ -92,16 +93,17 @@ def generate(start):
     Searches up the directory tree for a .mvw directory
     and generates the site into .mvw/site
     """
-    Generator(config(start)).generate()
+    Generator(create_config(start)).generate()
 
 
 def serve(start):
-    generator = Generator(config(start))
-    server = Server(generator, '127.0.0.1', 8000)
+    config = create_config(start)
+    generator = Generator(config)
+    server = Server(generator, '127.0.0.1', config.port)
     server.serve_forever()
 
 
-def config(start):
+def create_config(start):
     root = get_root(start)
 
     # If no mvw root, use working directory
@@ -127,11 +129,11 @@ def theme(start):
 
     root = get_root(start)
     if root is None:
-        init(start)
+        root = init(start)
 
-    conf = config(start)
-    themedir = conf.themedir
-    configthemedir = conf.configthemedir
+    config = create_config(start)
+    themedir = config.themedir
+    configthemedir = config.configthemedir
 
     if themedir != configthemedir and \
         not os.path.exists(configthemedir):
