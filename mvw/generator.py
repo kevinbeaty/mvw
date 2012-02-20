@@ -1,14 +1,10 @@
 import os
 import shutil
 import codecs
-from markdown import Markdown
-from markdown.extensions.meta import MetaPreprocessor
 
 
 class Generator:
-    """
-    Generates the html for the wiki
-    """
+    """ Generates the html for the wiki """
 
     def __init__(self, config):
         self.config = config
@@ -17,24 +13,23 @@ class Generator:
         self.site_root = '/'
 
     def generate(self):
-        """
-        Generates the entire site.
+        """ Generates the entire site.
         Cleans the outputdir, includes the theme
-        and generates the source into the outputdir
-        """
+        and generates the source into the outputdir """
+
         config = self.config
         self.site_root = config.site_root
         self.generate_from(config.sourcedir)
         self.generate_from(config.theme_public, autoindex=False)
 
     def generate_from(self, sourcedir, autoindex=True):
-        """
-        Generates and includes the source into the outputdir
-        """
+        """ Generates and includes the source into the outputdir """
+
         if not os.path.exists(sourcedir):
             return
 
-        outputdir = self.config.outputdir
+        config = self.config
+        outputdir = config.outputdir
         prefix = len(sourcedir) + len(os.path.sep)
 
         for root, dirs, files in os.walk(sourcedir):
@@ -53,7 +48,7 @@ class Generator:
 
                 if ext in ['.md', '.markdown']:
                     dest = os.path.join(destpath, "%s%s" % (base, '.html'))
-                    sources.append(dict(src=src, dest=dest))
+                    sources.append((src, dest))
                 else:
                     dest = os.path.join(destpath, f)
                     shutil.copy(src, dest)
@@ -61,7 +56,7 @@ class Generator:
             index = os.path.join(destpath, 'index.html')
             cindexes = [os.path.join(destpath, d, 'index.html') for d in dirs]
 
-            pages = self.pages(p['dest'] for p in sources)
+            pages = self.pages(p[1] for p in sources)
             children = self.pages(cindexes)
 
             # Remove previously generated index file to ensure it will
@@ -71,7 +66,8 @@ class Generator:
 
             # Generate all pages from source
             for p in sources:
-                self.convert(p['src'], p['dest'], pages, children, True)
+                src, dest = p
+                self.convert(src, dest, pages, children, True)
 
             # If index not generated as part of pages, generate
             # an index with empty content
@@ -79,12 +75,10 @@ class Generator:
                 self.convert(None, index, pages, children, True)
 
     def resource_path(self, relpath):
-        """
-        Retrieve a path to a static resource.
+        """ Retrieve a path to a static resource.
 
         Checks for resources and directories in theme public
-        first and then falls back to path into source directory.
-        """
+        first and then falls back to path into source directory."""
 
         # Get base name and extension
         dbase, dext = os.path.splitext(os.path.basename(relpath))
@@ -108,13 +102,11 @@ class Generator:
         return os.path.join(self.config.sourcedir, relpath)
 
     def regenerate(self, relpath):
-        """
-        Regenerate requested pages given a relative path.
+        """ Regenerate requested pages given a relative path.
 
         If requesting an html page, and a source file
         exists, regenerates from source and returns
-        content. Otherwise returns None
-        """
+        content. Otherwise returns None """
 
         # Get base name and extension
         dbase, dext = os.path.splitext(os.path.basename(relpath))
@@ -130,13 +122,14 @@ class Generator:
             dext = '.html'
 
         # Try to regenerate from source
+        config = self.config
         reldir = os.path.dirname(relpath)
-        srcdir = os.path.join(self.config.sourcedir, reldir)
+        srcdir = os.path.join(config.sourcedir, reldir)
         if dext != '.html' or not os.path.exists(srcdir):
             # Can only generate html from source in directories that exist
             return None
 
-        destination = os.path.join(self.config.outputdir, relpath)
+        destination = os.path.join(config.outputdir, relpath)
         destdir = os.path.dirname(destination)
 
         source_exts = ['.md', '.markdown']
@@ -173,49 +166,10 @@ class Generator:
         return None
 
     def convert(self, source, destination, pages, children, save=False):
-        """
-        Converts the source file and saves to the destination
-        """
 
-        breadcrumb = self.config.breadcrumb(self.site_root, destination)
-        pages = [p for p in pages if p not in breadcrumb]
-        context = dict(title=self.config.title(destination),
-                       breadcrumb=breadcrumb,
-                       pages=pages,
-                       children=children)
+        rendered = self.config.convert(source, destination,
+                self.site_root, pages, children)
 
-        content = ""
-        theme = 'default'
-        meta = {}
-        Meta = {}
-
-        if source and os.path.exists(source):
-            with codecs.open(source, encoding='utf-8') as src:
-                lines = src.readlines()
-
-            # Parse metadata first so we can get theme extensions
-            md = Markdown()
-            lines = MetaPreprocessor(md).run(lines)
-
-            Meta = md.Meta
-            meta = {k: ' '.join(v) for k, v in Meta.items()}
-
-            # Load theme from meta data if set
-            theme = meta.get('theme', 'default')
-            exts = self.config.get_markdown_extensions(theme=theme)
-            md = Markdown(extensions=exts)
-            md.Meta = meta  # restore already parsed meta data
-
-            content = md.convert(''.join(lines))
-
-        context['content'] = content
-        context['Meta'] = Meta
-        context['meta'] = meta
-
-        template = self.config.get_content_template(theme=theme)
-        rendered = template.render(**context)
-
-        # Write to destination if save requested
         if save:
             with codecs.open(destination, mode='w', encoding='utf-8') as dst:
                 dst.write(rendered)
