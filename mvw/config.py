@@ -1,13 +1,12 @@
 import os
 import sys
-import codecs
-from markdown import Markdown
-from markdown.extensions.meta import MetaPreprocessor
 
 
 class Config:
     """ Holds configurable properties of MVW.
-    Read by convention and from config.yml """
+    Custom configuration can by provided as a config
+    property in `.mvw/mvwconfig.py`.  Use `mvw config`
+    to copy configuration template to mvw root """
 
     def __init__(self):
         """ Initializes default values """
@@ -21,6 +20,21 @@ class Config:
         self.breadcrumb_home = None
         self.port = 8000
 
+        # Lazy load converters and page extensions
+        self._converters = {}
+        self._page_extensions = None
+
+    def converter(self, extension, converter):
+        """ Registers a converter for a given extension.
+        All source files with an extension mapped to a converter
+        will be converted as pages by calling
+        `converter.convert(config, source, **context)` where config
+        is this config, source is the path to source file to convert
+        and context created from `template_context` """
+
+        self._converters[extension] = converter
+        return self
+
     def theme(self, theme, **kwargs):
         """ Sets configuration for a specified theme.
         Stores all kwargs into configuration per theme.
@@ -32,7 +46,7 @@ class Config:
     def theme_get(self, theme, key, default):
         """ Gets a configuration value for the given theme.
         Config values are added using self.theme and may be
-        used for configuration of templates, parsers, etc. """
+        used for configuration of templates, converters, etc. """
         themes = self.themes or {}
         cfg = themes.get(theme, None) or {}
         return cfg.get(key, None) or default
@@ -78,6 +92,7 @@ class Config:
         return TemplatePage(self, site_root, destination)
 
     def pages(self, site_root, dests):
+        """ Creates and sorts pages for the given destination """
         pages = [self.page(site_root, d) for d in dests]
         pages.sort(key=lambda p: p.title)
         return pages
@@ -85,13 +100,13 @@ class Config:
     def template_environment(self, templatedir):
         """ Creates the template environment to load themes
         from the themedir. The environment is stored in
-        self.environment and is passed to get_content_template.
+        self.environment and can be used in content_template.
         Sets up a Jinja2 environment by default."""
 
         from jinja2 import Environment, FileSystemLoader
         return Environment(loader=FileSystemLoader(templatedir))
 
-    def content_template(self, environment, theme):
+    def content_template(self, theme):
         """ The template to use for parsed content.
         Default implementation attempts to load content_template
         using theme_get with default value ${theme}.html
@@ -99,9 +114,14 @@ class Config:
 
         template = self.theme_get(theme, 'content_template', '%s.html' % theme)
 
-        return environment.get_template(template)
+        return self.environment.get_template(template)
 
     def template_context(self, source, dest, site_root, pages, children):
+        """ Creates a template context to be used to convert and render.
+        Default implementation stores title, breadcrumb, pages and children.
+        The pages are siblings within same directory, children are index
+        pages of subdirectories.  Both pages and children params have already
+        been created using `self.pages` """
 
         breadcrumb = self.breadcrumb(site_root, dest)
         pages = [p for p in pages if p not in breadcrumb]
@@ -112,20 +132,17 @@ class Config:
                        children=children)
         return context
 
-    def render_template(self, environment, theme, content, **context):
-        template = self.content_template(self.environment, theme)
+    def render_template(self, theme, content, **context):
+        """ Renders the content for the given theme and context """
+
+        template = self.content_template(theme)
         context['content'] = content
         rendered = template.render(context)
         return rendered
 
-    def get_markdown_extensions(self, theme):
-        """ List of Python Markdown extensions """
-
-        exts = self.theme_get(theme, 'markdown_extensions', [
-            'codehilite(css_class=syntax,guess_lang=False)'])
-        return filter(None, exts)  # Removes empty lines
-
     def load(self, root, defaults):
+        """ Loads and configures remaining config properties.
+        Called after running custom mvwconfig.py if it exists """
 
         root = self.expandpath(root)
         defaults = self.expandpath(defaults)
@@ -168,6 +185,35 @@ class Config:
 
         return self
 
+    @property
+    def converters(self):
+        """ A dictionary mapping extension to converter """
+        if not self._converters:
+            # No converters registered, assume markdown
+            from mvw.converters import markdown
+            self.converter('.md', markdown)
+            self.converter('.markdown', markdown)
+
+        return self._converters
+
+    @property
+    def page_extensions(self):
+        """ All source file extensions considered pages. """
+        return self.converters.keys()
+
+    def convert(self, source, **context):
+        """ Converts the given source file. """
+
+        # Convert with first converter that handles extension
+        if source and os.path.exists(source):
+            _, ext = os.path.splitext(source)
+            converter = self.converters.get(ext, None)
+            if(converter):
+                return converter.convert(self, source, **context)
+
+        # Simply render empty content
+        return self.render_template('default', "", **context)
+
     @staticmethod
     def expandpath(path, root=None):
         """ Fully expands path appending
@@ -180,39 +226,6 @@ class Config:
         if root and not os.path.isabs(path):
             path = os.path.join(root, path)
         return os.path.abspath(path)
-
-    def convert(self, source, destination, site_root, **context):
-        """ Converts the source file and saves to the destination """
-
-        content = ""
-        theme = 'default'
-        meta = {}
-        Meta = {}
-
-        if source and os.path.exists(source):
-            with codecs.open(source, encoding='utf-8') as src:
-                lines = src.readlines()
-
-            # Parse metadata first so we can get theme extensions
-            md = Markdown()
-            lines = MetaPreprocessor(md).run(lines)
-
-            Meta = md.Meta
-            meta = {k: ' '.join(v) for k, v in Meta.items()}
-
-            # Load theme from meta data if set
-            theme = meta.get('theme', 'default')
-            exts = self.get_markdown_extensions(theme=theme)
-            md = Markdown(extensions=exts)
-            md.Meta = meta  # restore already parsed meta data
-
-            content = md.convert(''.join(lines))
-
-        context['Meta'] = Meta
-        context['meta'] = meta
-
-        environment = self.environment
-        return self.render_template(environment, theme, content, **context)
 
 
 class TemplatePage:

@@ -31,6 +31,7 @@ class Generator:
         config = self.config
         outputdir = config.outputdir
         prefix = len(sourcedir) + len(os.path.sep)
+        source_exts = config.page_extensions
 
         for root, dirs, files in os.walk(sourcedir):
             # Prune hidden directories and files
@@ -46,7 +47,7 @@ class Generator:
                 src = os.path.join(root, f)
                 base, ext = os.path.splitext(f)
 
-                if ext in ['.md', '.markdown']:
+                if ext in source_exts:
                     dest = os.path.join(destpath, "%s%s" % (base, '.html'))
                     sources.append((src, dest))
                 else:
@@ -132,7 +133,7 @@ class Generator:
         destination = os.path.join(config.outputdir, relpath)
         destdir = os.path.dirname(destination)
 
-        source_exts = ['.md', '.markdown']
+        source_exts = config.page_extensions
         sources = []
         dests = []
         childdirs = []
@@ -171,7 +172,7 @@ class Generator:
         site_root = self.site_root
         context = config.template_context(source, destination,
                 site_root, pages, children)
-        rendered = config.convert(source, destination, site_root, **context)
+        rendered = config.convert(source, **context)
 
         if save:
             with codecs.open(destination, mode='w', encoding='utf-8') as dst:
