@@ -20,9 +20,9 @@ class Generator:
         config = self.config
         self.site_root = config.site_root
         self.generate_from(config.sourcedir)
-        self.generate_from(config.theme_public, autoindex=False)
+        self.generate_from(config.theme_public, copyonly=True)
 
-    def generate_from(self, sourcedir, autoindex=True):
+    def generate_from(self, sourcedir, copyonly=False):
         """ Generates and includes the source into the outputdir """
 
         if not os.path.exists(sourcedir):
@@ -31,7 +31,7 @@ class Generator:
         config = self.config
         outputdir = config.outputdir
         prefix = len(sourcedir) + len(os.path.sep)
-        source_exts = config.page_extensions
+        source_exts = [] if copyonly else config.page_extensions
 
         for root, dirs, files in os.walk(sourcedir):
             # Prune hidden directories and files
@@ -62,7 +62,7 @@ class Generator:
 
             # Remove previously generated index file to ensure it will
             # be regenerated whether it is a page or not
-            if autoindex and os.path.exists(index):
+            if not copyonly and os.path.exists(index):
                 os.remove(index)
 
             # Generate all pages from source
@@ -72,7 +72,7 @@ class Generator:
 
             # If index not generated as part of pages, generate
             # an index with empty content
-            if autoindex and not os.path.exists(index):
+            if not copyonly and not os.path.exists(index):
                 self.convert(None, index, pages, children, True)
 
     def resource_path(self, relpath):
