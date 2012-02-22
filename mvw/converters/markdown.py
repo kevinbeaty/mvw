@@ -10,31 +10,36 @@ from markdown import Markdown
 from markdown.extensions.meta import MetaPreprocessor
 
 
-def convert(config, source, **context):
-    """ Converts the source file and saves to the destination """
-    with codecs.open(source, encoding='utf-8') as src:
-        lines = src.readlines()
+class MarkdownConverter:
+    def convert(self, config, source, **context):
+        """ Converts the source file and saves to the destination """
+        with codecs.open(source, encoding='utf-8') as src:
+            lines = src.readlines()
 
-    # Parse metadata first so we can get theme extensions
-    md = Markdown()
-    lines = MetaPreprocessor(md).run(lines)
+        # Parse metadata first so we can get theme extensions
+        md = Markdown()
+        lines = MetaPreprocessor(md).run(lines)
 
-    Meta = md.Meta
-    meta = {k: ' '.join(v) for k, v in Meta.items()}
+        Meta = md.Meta
+        meta = {k: ' '.join(v) for k, v in Meta.items()}
 
-    # Load theme from meta data if set
-    theme = meta.get('theme', 'default')
+        # Load theme from meta data if set
+        theme = meta.get('theme', 'default')
 
-    exts = config.theme_get(theme, 'markdown_extensions', [
-        'codehilite(css_class=syntax,guess_lang=False)'])
-    exts = filter(None, exts)  # Removes empty lines
+        exts = config.theme_get(theme, 'markdown_extensions', [
+            'codehilite(css_class=syntax,guess_lang=False)'])
+        exts = filter(None, exts)  # Removes empty lines
 
-    md = Markdown(extensions=exts)
-    md.Meta = meta  # restore already parsed meta data
+        md = Markdown(extensions=exts)
+        md.Meta = meta  # restore already parsed meta data
 
-    content = md.convert(''.join(lines))
+        content = md.convert(''.join(lines))
 
-    context['Meta'] = Meta
-    context['meta'] = meta
+        context['Meta'] = Meta
+        context['meta'] = meta
 
-    return config.render_template(theme, content, **context)
+        return config.render_template(theme, content, **context)
+
+    def register(self, config):
+        config.converter('.md', self.convert)
+        config.converter('.markdown', self.convert)

@@ -22,17 +22,16 @@ class Config:
 
         # Lazy load converters and page extensions
         self._converters = {}
-        self._page_extensions = None
 
     def converter(self, extension, converter):
-        """ Registers a converter for a given extension.
+        """ Registers a converter function for a given extension.
         All source files with an extension mapped to a converter
         will be converted as pages by calling
-        `converter.convert(config, source, **context)` where config
+        `converter(config, source, **context)` where config
         is this config, source is the path to source file to convert
         and context created from `template_context` """
-
-        self._converters[extension] = converter
+        if extension:
+            self._converters[extension] = converter
         return self
 
     def theme(self, theme, **kwargs):
@@ -189,10 +188,17 @@ class Config:
     def converters(self):
         """ A dictionary mapping extension to converter """
         if not self._converters:
-            # No converters registered, assume markdown
-            from mvw.converters import markdown
-            self.converter('.md', markdown)
-            self.converter('.markdown', markdown)
+            # No converters registered, assume pygments and markdown
+
+            # Register all supporter lexers from pygments
+            # This must be done first to allow overridding
+            # with specific converters below
+            from mvw.converters.pygments import PygmentsConverter
+            PygmentsConverter().register(self)
+
+            # Register markdown converter
+            from mvw.converters.markdown import MarkdownConverter
+            MarkdownConverter().register(self)
 
         return self._converters
 
@@ -209,7 +215,7 @@ class Config:
             _, ext = os.path.splitext(source)
             converter = self.converters.get(ext, None)
             if(converter):
-                return converter.convert(self, source, **context)
+                return converter(self, source, **context)
 
         # Simply render empty content
         return self.render_template('default', "", **context)
