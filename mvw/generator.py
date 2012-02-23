@@ -46,7 +46,7 @@ class Generator:
                 src = os.path.join(root, f)
                 base, ext = os.path.splitext(f)
 
-                if not copyonly and config.find_converter(src):
+                if not copyonly and config.is_page(src):
                     dest = os.path.join(destpath, "%s%s" % (base, '.html'))
                     sources.append((src, dest))
                 else:
@@ -145,7 +145,7 @@ class Generator:
             base, ext = os.path.splitext(os.path.basename(src))
             srcpath = os.path.join(srcdir, src)
 
-            if config.find_converter(srcpath):
+            if config.is_page(srcpath):
                 sources.append(srcpath)
                 dests.append(os.path.join(destdir, "%s%s" % (base, '.html')))
                 if base == dbase:

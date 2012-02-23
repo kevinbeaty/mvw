@@ -5,13 +5,18 @@ theme key.  Context contains all meta data lists as `Meta` and as
 joined strings as `meta`. Markdown is parsed and then rendered
 with template using theme from meta data or default."""
 
+import os
 import codecs
 from markdown import Markdown
 from markdown.extensions.meta import MetaPreprocessor
 
 
 class MarkdownConverter:
-    def convert(self, config, source, **context):
+    def __init__(self, config):
+        self.config = config
+        config.converter(self.handles, self.convert)
+
+    def convert(self, source, **context):
         """ Converts the source file and saves to the destination """
         with codecs.open(source, encoding='utf-8') as src:
             lines = src.readlines()
@@ -26,7 +31,7 @@ class MarkdownConverter:
         # Load theme from meta data if set
         theme = meta.get('theme', 'default')
 
-        exts = config.theme_get(theme, 'markdown_extensions', [
+        exts = self.config.theme_get(theme, 'markdown_extensions', [
             'codehilite(css_class=syntax,guess_lang=False)'])
         exts = filter(None, exts)  # Removes empty lines
 
@@ -38,8 +43,8 @@ class MarkdownConverter:
         context['Meta'] = Meta
         context['meta'] = meta
 
-        return config.render_template(theme, content, **context)
+        return self.config.render_template(theme, content, **context)
 
-    def register(self, config):
-        config.converter('.md', self.convert)
-        config.converter('.markdown', self.convert)
+    def handles(self, source):
+        _, ext = os.path.splitext(source)
+        return ext in ['.md', '.markdown']

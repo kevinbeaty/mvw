@@ -20,18 +20,16 @@ class Config:
         self.breadcrumb_home = None
         self.port = 8000
 
-        # Lazy load converters and page extensions
-        self._converters = {}
+        self._converters = []
 
-    def converter(self, extension, converter):
-        """ Registers a converter function for a given extension.
-        All source files with an extension mapped to a converter
-        will be converted as pages by calling
-        `converter(config, source, **context)` where config
-        is this config, source is the path to source file to convert
-        and context created from `template_context` """
-        if extension:
-            self._converters[extension] = converter
+    def converter(self, predicate, converter):
+        """ Registers a converter function for a given predicate.
+        All source files will be checked against `predicate(source)`
+        If the predicate returns a True value, the source will be
+        converted as pages by calling converter with:
+        `converter(source, **context)` where source is the path to source
+        file to convert and context created from `template_context` """
+        self._converters.append((predicate, converter))
         return self
 
     def theme(self, theme, **kwargs):
@@ -186,40 +184,45 @@ class Config:
 
     @property
     def converters(self):
-        """ A dictionary mapping extension to converter """
+        """ A list of tuples with predicate to converter """
         if not self._converters:
             # No converters registered, assume pygments and markdown
 
-            # Register all supporter lexers from pygments
-            # This must be done first to allow overridding
-            # with specific converters below
-            from mvw.converters.pygments import PygmentsConverter
-            PygmentsConverter().register(self)
-
             # Register markdown converter
             from mvw.converters.markdown import MarkdownConverter
-            MarkdownConverter().register(self)
+            MarkdownConverter(self)
+
+            # Register all supporter lexers from pygments
+            # This must be done last to allow overridding
+            # by short circuiting with specific converters above
+            from mvw.converters.pygments import PygmentsConverter
+            PygmentsConverter(self)
 
         return self._converters
 
-    def find_converter(self, source):
-        """ Finds the first converter that handles the given source path """
+    def is_page(self, source):
+        """ Returns True if a converter exists for the given source file """
         if source and os.path.exists(source):
-            _, ext = os.path.splitext(source)
-            converter = self.converters.get(ext, None)
-            if(converter):
-                return converter
-        return None
+            for (predicate, _) in self.converters:
+                if predicate(source):
+                    return True
+        return False
 
     def convert(self, source, **context):
         """ Converts the given source file. """
 
-        converter = self.find_converter(source)
+        converter = None
+        if source and os.path.exists(source):
+            for (predicate, converter) in self.converters:
+                if (predicate(source)):
+                    converter = converter
+                    break
+
         if(converter):
             # Convert with first converter that source file
-            return converter(self, source, **context)
+            return converter(source, **context)
         else:
-            # Simply render empty content
+            # Simply render empty content in default template
             return self.render_template('default', "", **context)
 
     @staticmethod
