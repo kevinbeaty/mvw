@@ -31,7 +31,6 @@ class Generator:
         config = self.config
         outputdir = config.outputdir
         prefix = len(sourcedir) + len(os.path.sep)
-        source_exts = [] if copyonly else config.page_extensions
 
         for root, dirs, files in os.walk(sourcedir):
             # Prune hidden directories and files
@@ -47,7 +46,7 @@ class Generator:
                 src = os.path.join(root, f)
                 base, ext = os.path.splitext(f)
 
-                if ext in source_exts:
+                if not copyonly and config.find_converter(src):
                     dest = os.path.join(destpath, "%s%s" % (base, '.html'))
                     sources.append((src, dest))
                 else:
@@ -133,11 +132,12 @@ class Generator:
         destination = os.path.join(config.outputdir, relpath)
         destdir = os.path.dirname(destination)
 
-        source_exts = config.page_extensions
+        source = None
         sources = []
         dests = []
         childdirs = []
         for src in os.listdir(srcdir):
+
             # Ignore hidden files and directories
             if src.startswith('.'):
                 continue
@@ -145,26 +145,26 @@ class Generator:
             base, ext = os.path.splitext(os.path.basename(src))
             srcpath = os.path.join(srcdir, src)
 
-            if ext in source_exts:
+            if config.find_converter(srcpath):
                 sources.append(srcpath)
                 dests.append(os.path.join(destdir, "%s%s" % (base, '.html')))
+                if base == dbase:
+                    source = srcpath
             elif os.path.isdir(srcpath):
                 childdirs.append(os.path.join(destdir, src, 'index.html'))
 
         pages = self.pages(dests)
         children = self.pages(childdirs)
 
-        for source_ext in source_exts:
-            source = os.path.join(srcdir, '%s%s' % (dbase, source_ext))
-            if source in sources:
-                return self.convert(source, destination, pages, children)
-
-        if dbase == 'index':
+        if source:
+            # Convert the existing source file
+            return self.convert(source, destination, pages, children)
+        elif dbase == 'index':
             # If requesting index, and index source does not exist,
             # generate with empty content
             return self.convert(None, destination, pages, children)
-
-        return None
+        else:
+            return None
 
     def convert(self, source, destination, pages, children, save=False):
 

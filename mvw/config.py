@@ -202,23 +202,25 @@ class Config:
 
         return self._converters
 
-    @property
-    def page_extensions(self):
-        """ All source file extensions considered pages. """
-        return self.converters.keys()
-
-    def convert(self, source, **context):
-        """ Converts the given source file. """
-
-        # Convert with first converter that handles extension
+    def find_converter(self, source):
+        """ Finds the first converter that handles the given source path """
         if source and os.path.exists(source):
             _, ext = os.path.splitext(source)
             converter = self.converters.get(ext, None)
             if(converter):
-                return converter(self, source, **context)
+                return converter
+        return None
 
-        # Simply render empty content
-        return self.render_template('default', "", **context)
+    def convert(self, source, **context):
+        """ Converts the given source file. """
+
+        converter = self.find_converter(source)
+        if(converter):
+            # Convert with first converter that source file
+            return converter(self, source, **context)
+        else:
+            # Simply render empty content
+            return self.render_template('default', "", **context)
 
     @staticmethod
     def expandpath(path, root=None):
