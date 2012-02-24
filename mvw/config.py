@@ -19,8 +19,7 @@ class Config:
         self.themes = {}
         self.breadcrumb_home = None
         self.port = 8000
-
-        self._converters = []
+        self.converters = []
 
     def converter(self, predicate, converter):
         """ Registers a converter function for a given predicate.
@@ -29,7 +28,7 @@ class Config:
         converted as pages by calling converter with:
         `converter(source, **context)` where source is the path to source
         file to convert and context created from `template_context` """
-        self._converters.append((predicate, converter))
+        self.converters.append((predicate, converter))
         return self
 
     def theme(self, theme, **kwargs):
@@ -180,13 +179,8 @@ class Config:
         if not self.breadcrumb_home:
             self.breadcrumb_home = self.title(self.sourcedir)
 
-        return self
-
-    @property
-    def converters(self):
-        """ A list of tuples with predicate to converter """
-        if not self._converters:
-            # No converters registered, assume pygments and markdown
+        # If no converters registered, assume pygments and markdown
+        if not self.converters:
 
             # Register markdown converter
             from mvw.converters.markdown import MarkdownConverter
@@ -198,7 +192,7 @@ class Config:
             from mvw.converters.pygments import PygmentsConverter
             PygmentsConverter(self)
 
-        return self._converters
+        return self
 
     def is_page(self, source):
         """ Returns True if a converter exists for the given source file """
