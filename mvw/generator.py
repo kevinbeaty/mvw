@@ -44,14 +44,17 @@ class Generator:
             sources = []
             for f in files:
                 src = os.path.join(root, f)
-                base, ext = os.path.splitext(f)
-
-                if not copyonly and config.is_page(src):
-                    dest = os.path.join(destpath, "%s%s" % (base, '.html'))
-                    sources.append((src, dest))
-                else:
+                if copyonly or not config.is_page(src):
                     dest = os.path.join(destpath, f)
                     shutil.copy(src, dest)
+                else:
+                    base, _ = os.path.splitext(f)
+                    dest = os.path.join(destpath, "%s%s" % (base, '.html'))
+                    sources.append((src, dest))
+
+            # Skip generation of pages if we are only copying (theme public)
+            if copyonly:
+                continue
 
             index = os.path.join(destpath, 'index.html')
             cindexes = [os.path.join(destpath, d, 'index.html') for d in dirs]
@@ -61,7 +64,7 @@ class Generator:
 
             # Remove previously generated index file to ensure it will
             # be regenerated whether it is a page or not
-            if not copyonly and os.path.exists(index):
+            if os.path.exists(index):
                 os.remove(index)
 
             # Generate all pages from source
@@ -71,7 +74,7 @@ class Generator:
 
             # If index not generated as part of pages, generate
             # an index with empty content
-            if not copyonly and not os.path.exists(index):
+            if not os.path.exists(index):
                 self.convert(None, index, pages, children, True)
 
     def resource_path(self, relpath):
