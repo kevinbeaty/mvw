@@ -28,6 +28,14 @@ def mvwsite(sitedir):
     return os.path.join(dotmvw(sitedir), 'site')
 
 
+def test_defaults():
+    from mvw.config import Config
+    dirname = os.path.dirname(__file__)
+    defaults = os.path.join(dirname, '..', 'defaults')
+    defaults = Config.expandpath(defaults)
+    assert main.get_defaults() == defaults
+
+
 def test_init_empty():
     sitedir = chdir('empty')
     siteroot = dotmvw(sitedir)
