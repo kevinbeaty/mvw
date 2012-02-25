@@ -39,18 +39,21 @@ def run():
 
     start = os.getcwd()
     if command == "init":
-        init(start)
+        result = init(start)
     elif command == "generate":
-        generate(start)
+        result = generate(start)
     elif command == "serve":
-        serve(start)
+        result = serve(start)
     elif command == "theme":
-        theme(start)
+        result = theme(start)
     elif command == "config":
-        config(start)
+        result = config(start)
     else:
         opts.print_usage()
         sys.exit(-2)
+
+    if not result:
+        sys.exit(-3)
 
 
 def init(start):
@@ -64,7 +67,7 @@ def init(start):
         os.mkdir(root)
     else:
         print("Cannot init within existing wiki: %s" % root)
-        sys.exit(-3)
+        return None
     return root
 
 
@@ -84,7 +87,9 @@ def config(start):
         shutil.copy(config, root)
     else:
         print("Will not overwrite existing mvwconfig.py %s" % mvwconfig)
-        sys.exit(-3)
+        return False
+
+    return True
 
 
 def generate(start):
@@ -94,6 +99,7 @@ def generate(start):
     and generates the site into .mvw/site
     """
     Generator(create_config(start)).generate()
+    return True
 
 
 def serve(start):
@@ -101,6 +107,7 @@ def serve(start):
     generator = Generator(config)
     server = Server(generator, '127.0.0.1', config.port)
     server.serve_forever()
+    return True
 
 
 def create_config(start):
@@ -140,7 +147,9 @@ def theme(start):
         shutil.copytree(themedir, configthemedir)
     else:
         print("Will not overwrite existing themedir %s" % configthemedir)
-        sys.exit(-3)
+        return False
+
+    return True
 
 
 def get_root(path):
