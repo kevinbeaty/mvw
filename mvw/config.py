@@ -183,13 +183,13 @@ class Config:
         if not self.converters:
 
             # Register markdown converter
-            from mvw.converters.markdown import MarkdownConverter
+            from mvw.converters.markdownconvert import MarkdownConverter
             MarkdownConverter(self)
 
             # Register all supporter lexers from pygments
             # This must be done last to allow overridding
             # by short circuiting with specific converters above
-            from mvw.converters.pygments import PygmentsConverter
+            from mvw.converters.pygmentsconvert import PygmentsConverter
             PygmentsConverter(self)
 
         return self
