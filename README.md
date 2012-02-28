@@ -1,5 +1,4 @@
 # MVW
-![travis-ci](https://secure.travis-ci.org/simplectic/mvw.png)
 
 MVW is a minimal personal wiki engine.
 
@@ -34,3 +33,4 @@ Example and documentation at <http://simplectic.com/mvw>. The documentation sour
 ## Licence
 See LICENSE for details
 
+![Build Status](https://secure.travis-ci.org/simplectic/mvw.png)
