@@ -1,4 +1,5 @@
 # MVW
+![travis-ci](https://secure.travis-ci.org/simplectic/mvw.png)
 
 MVW is a minimal personal wiki engine.
 
