@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/simplectic/mvw.png)](http://travis-ci.org/simplectic/mvw)
+[![Build Status](https://secure.travis-ci.org/kevinbeaty/mvw.png)](http://travis-ci.org/kevinbeaty/mvw)
 
 MVW is a minimal personal wiki engine.
 
@@ -10,7 +10,7 @@ Example and documentation at <http://simplectic.com/mvw>. The documentation sour
 
     ```bash
     # Install from github 
-    pip install -e git://github.com/simplectic/mvw.git#egg=MVW
+    pip install -e git://github.com/kevinbeaty/mvw.git#egg=MVW
     ```
 
 2. Create
