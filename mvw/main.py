@@ -23,7 +23,7 @@ def run():
                 for customization.
             """
     desc = """Minimal Viable Wiki
-            http://simplectic.com/mvw"""
+            http://github.com/kevinbeaty/mvw"""
     version = "0.0.1"
 
     opts = OptionParser(usage=usage, description=desc, version=version)

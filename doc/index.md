@@ -7,7 +7,7 @@ MVW is a minimal personal wiki engine.
         :::bash
         # Install from github
         $ pip install -e \
-        > git://github.com/simplectic/mvw.git#egg=MVW
+        > git://github.com/kevinbeaty/mvw.git#egg=MVW
 
 2. Create
 
@@ -31,7 +31,7 @@ MVW is a minimal personal wiki engine.
         :::bash
         $ mkproject wiki 
         $ pip install -e \
-        > git://github.com/simplectic/mvw.git#egg=MVW
+        > git://github.com/kevinbeaty/mvw.git#egg=MVW
 
     The [`mkproject`][3] command is part of [virtualenvwrapper][2]
     It will allow you to call `deactivate` when you are done and 
@@ -68,7 +68,7 @@ MVW is a minimal personal wiki engine.
     [generate a static site][7].
 
 
-[1]: http://github.com/simplectic/mvw
+[1]: http://github.com/kevinbeaty/mvw
 [2]: http://www.doughellmann.com/docs/virtualenvwrapper/
 [3]: http://www.doughellmann.com/docs/virtualenvwrapper/command_ref.html#project-directory-management
 [4]: http://daringfireball.net/projects/markdown/

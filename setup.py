@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 setup(
     name='MVW',
     version='0.1pre',
-    url='http://simplectic.com/mvw/',
+    url='http://github.com/kevinbeaty/mvw',
     license='MIT',
     author='Kevin Beaty',
     author_email='kevin@simplectic.com',
